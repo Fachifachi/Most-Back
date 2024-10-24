@@ -12,15 +12,19 @@ const getAllPorcentajesIva = (req, res) => {
 
 // Crear un nuevo porcentaje de IVA
 const createPorcentajeIva = (req, res) => {
-    const newPorcentajeIva = req.body;
-    PorcentajeIva.createPorcentajeIva(newPorcentajeIva, (err, results) => {
-        if (err) {
-            return res.status(500).json({ error: err.message });
-        }
-        res.json({ message: 'Porcentaje de IVA creado con éxito', data: results });
-    });
+  const newPorcentajeIva = {
+      nombre_porcentaje: req.body.nombre_porcentaje,
+      descripcion_porcentaje: req.body.descripcion_porcentaje,
+      porcentaje: req.body.porcentaje,
+      activo: 1 // Establece por defecto como activo
+  };
+  PorcentajeIva.createPorcentajeIva(newPorcentajeIva, (err, results) => {
+      if (err) {
+          return res.status(500).json({ error: err.message });
+      }
+      res.json({ message: 'Porcentaje de IVA creado con éxito', data: results });
+  });
 };
-
 // Actualizar un porcentaje de IVA
 const updatePorcentajeIva = (req, res) => {
     const { id } = req.params;
@@ -44,14 +48,28 @@ const disablePorcentajeIva = (req, res) => {
     });
 };
 
-// Alternar el estado de habilitado/deshabilitado
+// Habilitar/Deshabilitar un porcentaje de IVA (toggle)
 const toggleStatus = (req, res) => {
     const { id } = req.params;
-    PorcentajeIva.toggleStatus(id, (err, results) => {
+
+    // Asegúrate de tener una validación para el ID
+    if (!id) {
+        return res.status(400).send('ID es requerido');
+    }
+
+    // Realiza la consulta para alternar el estado
+    PorcentajeIva.toggleStatus(id, (err, result) => {
         if (err) {
-            return res.status(500).json({ error: err.message });
+            console.error('Error al cambiar estado del porcentaje de IVA:', err);
+            return res.status(500).send('Error al cambiar el estado del porcentaje de IVA');
         }
-        res.json({ message: 'Estado del porcentaje de IVA cambiado con éxito', data: results });
+
+        // Verifica si se actualizó algún registro
+        if (result.affectedRows === 0) {
+            return res.status(404).send('Porcentaje de IVA no encontrado');
+        }
+
+        res.status(200).send('Estado del porcentaje de IVA actualizado');
     });
 };
 
@@ -60,5 +78,5 @@ module.exports = {
     createPorcentajeIva,
     updatePorcentajeIva,
     disablePorcentajeIva,
-    toggleStatus
+    toggleStatus,
 };

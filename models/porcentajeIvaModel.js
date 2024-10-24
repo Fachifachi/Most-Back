@@ -1,38 +1,27 @@
-const db = require('../config/db');
+const db = require('../config/db'); // Asegúrate de que la ruta sea correcta
 
 // Obtener todos los porcentajes de IVA
 const getAllPorcentajesIva = (callback) => {
     db.query('SELECT * FROM porcentajesiva', callback);
 };
-
-// Crear un nuevo porcentaje de IVA
-const createPorcentajeIva = (porcentajeIva, callback) => {
-    const { nombre_porcentaje, descripcion_porcentaje, porcentaje } = porcentajeIva;
-    db.query(
-        'INSERT INTO porcentajesiva (nombre_porcentaje, descripcion_porcentaje, porcentaje, activo) VALUES (?, ?, ?, 1)', // Fijamos activo como 1 por defecto
-        [nombre_porcentaje, descripcion_porcentaje, porcentaje],
-        callback
-    );
+const createPorcentajeIva = (newPorcentajeIva, callback) => {
+  db.query('INSERT INTO porcentajesiva (nombre_porcentaje, descripcion_porcentaje, porcentaje, activo) VALUES (?, ?, ?, ?)', 
+  [newPorcentajeIva.nombre_porcentaje, newPorcentajeIva.descripcion_porcentaje, newPorcentajeIva.porcentaje, newPorcentajeIva.activo], 
+  callback);
 };
-
 // Actualizar un porcentaje de IVA
-const updatePorcentajeIva = (id_porcentaje_iva, porcentajeIva, callback) => {
-    const { nombre_porcentaje, descripcion_porcentaje, porcentaje, activo } = porcentajeIva;
-    db.query(
-        'UPDATE porcentajesiva SET nombre_porcentaje = ?, descripcion_porcentaje = ?, porcentaje = ?, activo = ? WHERE id_porcentaje_iva = ?',
-        [nombre_porcentaje, descripcion_porcentaje, porcentaje, activo, id_porcentaje_iva],
-        callback
-    );
+const updatePorcentajeIva = (id, updatedPorcentajeIva, callback) => {
+    db.query('UPDATE porcentajesiva SET ? WHERE id_porcentaje_iva = ?', [updatedPorcentajeIva, id], callback);
 };
 
-// Deshabilitar un porcentaje de IVA (establecer activo en 0)
-const disablePorcentajeIva = (id_porcentaje_iva, callback) => {
-    db.query('UPDATE porcentajesiva SET activo = 0 WHERE id_porcentaje_iva = ?', [id_porcentaje_iva], callback);
+// Deshabilitar un porcentaje de IVA
+const disablePorcentajeIva = (id, callback) => {
+    db.query('UPDATE porcentajesiva SET activo = 0 WHERE id_porcentaje_iva = ?', [id], callback);
 };
 
-// Habilitar/Deshabilitar un porcentaje de IVA (toggle)
-const toggleStatus = (id_porcentaje_iva, callback) => {
-    db.query('UPDATE porcentajesiva SET activo = 1 - activo WHERE id_porcentaje_iva = ?', [id_porcentaje_iva], callback);
+// Habilitar/Deshabilitar un porcentaje de IVA
+const toggleStatus = (id, callback) => {
+    db.query('UPDATE porcentajesiva SET activo = 1 - activo WHERE id_porcentaje_iva = ?', [id], callback);
 };
 
 module.exports = {
@@ -40,5 +29,5 @@ module.exports = {
     createPorcentajeIva,
     updatePorcentajeIva,
     disablePorcentajeIva,
-    toggleStatus
+    toggleStatus,
 };
