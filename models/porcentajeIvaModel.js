@@ -1,7 +1,7 @@
 // models/porcentajeIvaModel.js
 const db = require('../config/db');
 
-// Función para obtener todos los porcentajes de IVA
+// Obtener todos los porcentajes de IVA
 const getPorcentajesIva = () => {
   return new Promise((resolve, reject) => {
     db.query('SELECT * FROM porcentajesiva', (err, results) => {
@@ -13,26 +13,32 @@ const getPorcentajesIva = () => {
   });
 };
 
-// Función para agregar un nuevo porcentaje de IVA
-const addPorcentajeIva = (nombre_porcentaje, descripcion_porcentaje) => {
+// Agregar un nuevo porcentaje de IVA
+const addPorcentajeIva = (nombre_porcentaje, descripcion_porcentaje, porcentaje) => {
   return new Promise((resolve, reject) => {
-    db.query('INSERT INTO porcentajesiva (nombre_porcentaje, descripcion_porcentaje) VALUES (?, ?)', 
-             [nombre_porcentaje, descripcion_porcentaje], 
-             (err, results) => {
-      if (err) {
-        return reject(err);
+    db.query(
+      'INSERT INTO porcentajesiva (nombre_porcentaje, descripcion_porcentaje, porcentaje, activo) VALUES (?, ?, ?, 1)', 
+      [nombre_porcentaje, descripcion_porcentaje, porcentaje], 
+      (err, results) => {
+        if (err) {
+          return reject(err);
+        }
+        resolve(results.insertId);
       }
-      resolve(results.insertId);
-    });
+    );
   });
 };
 
-// Función para actualizar un porcentaje de IVA
-const updatePorcentajeIva = (id_porcentaje_iva, nombre_porcentaje) => {
+// Actualizar un porcentaje de IVA
+const updatePorcentajeIva = (id_porcentaje_iva, updatedFields) => {
   return new Promise((resolve, reject) => {
-    db.query('UPDATE porcentajesiva SET nombre_porcentaje = ? WHERE id_porcentaje_iva = ?', 
-             [nombre_porcentaje, id_porcentaje_iva], 
-             (err, results) => {
+    const fields = Object.keys(updatedFields);
+    const values = fields.map(field => updatedFields[field]);
+
+    const sql = `UPDATE porcentajesiva SET ${fields.map((field, index) => `${field} = ?`).join(', ')} WHERE id_porcentaje_iva = ?`;
+    values.push(id_porcentaje_iva);
+
+    db.query(sql, values, (err, results) => {
       if (err) {
         return reject(err);
       }
@@ -41,17 +47,19 @@ const updatePorcentajeIva = (id_porcentaje_iva, nombre_porcentaje) => {
   });
 };
 
-// Función para eliminar (desactivar) un porcentaje de IVA
-const deletePorcentajeIva = (id_porcentaje_iva) => {
+// Habilitar o deshabilitar un porcentaje de IVA
+const togglePorcentajeIva = (id_porcentaje_iva, activo) => {
   return new Promise((resolve, reject) => {
-    db.query('DELETE FROM porcentajesiva WHERE id_porcentaje_iva = ?', 
-             [id_porcentaje_iva], 
-             (err, results) => {
-      if (err) {
-        return reject(err);
+    db.query(
+      'UPDATE porcentajesiva SET activo = ? WHERE id_porcentaje_iva = ?', 
+      [activo, id_porcentaje_iva], 
+      (err, results) => {
+        if (err) {
+          return reject(err);
+        }
+        resolve(results.affectedRows);
       }
-      resolve(results.affectedRows);
-    });
+    );
   });
 };
 
@@ -59,5 +67,5 @@ module.exports = {
   getPorcentajesIva,
   addPorcentajeIva,
   updatePorcentajeIva,
-  deletePorcentajeIva,
+  togglePorcentajeIva,
 };

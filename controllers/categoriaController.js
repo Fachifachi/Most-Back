@@ -10,10 +10,22 @@ exports.getAllCategorias = (req, res) => {
         res.json(results);
     });
 };
+exports.toggleStatus = (req, res) => {
+    const { id_categoria } = req.params;
 
+    categoriaModel.toggleStatus(id_categoria, (err, results) => {
+        if (err) {
+            return res.status(500).json({ message: err.message });
+        }
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ message: 'Categoría no encontrada' });
+        }
+        res.json({ message: 'Estado de categoría cambiado' });
+    });
+};
 // Crear una nueva categoría
 exports.createCategoria = (req, res) => {
-    const newCategoria = req.body;
+    const newCategoria = req.body; // Aquí recibes el objeto que incluye los datos
     categoriaModel.createCategoria(newCategoria, (err, results) => {
         if (err) {
             return res.status(500).json({ message: err.message });
@@ -21,6 +33,7 @@ exports.createCategoria = (req, res) => {
         res.status(201).json({ id_categoria: results.insertId, ...newCategoria });
     });
 };
+
 
 // Actualizar una categoría
 exports.updateCategoria = (req, res) => {

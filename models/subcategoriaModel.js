@@ -4,7 +4,16 @@ const db = require('../config/db');
 // Función para obtener todas las subcategorías
 const getSubcategorias = () => {
   return new Promise((resolve, reject) => {
-    db.query('SELECT * FROM subcategorias', (err, results) => {
+    const query = `
+      SELECT 
+        subcategorias.*, 
+        categorias.nombre_categoria 
+      FROM subcategorias
+      INNER JOIN categorias 
+      ON subcategorias.id_categoria = categorias.id_categoria
+    `;
+
+    db.query(query, (err, results) => {
       if (err) {
         return reject(err);
       }
@@ -12,7 +21,6 @@ const getSubcategorias = () => {
     });
   });
 };
-
 // Función para agregar una nueva subcategoría
 const addSubcategoria = (nombre_sub_categoria, descripcion_sub_categoria, id_procentaje_iva, estado_sub_categoria) => {
   return new Promise((resolve, reject) => {
