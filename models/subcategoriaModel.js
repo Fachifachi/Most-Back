@@ -15,16 +15,24 @@ class Subcategoria {
             INNER JOIN categorias c ON s.id_categoria = c.id_categoria
             INNER JOIN porcentajesiva p ON s.id_porcentaje_iva = p.id_porcentaje_iva;
         `;
-        const [rows] = await connection.promise().query(query); // Usar connection
-        return rows;
+        try {
+            const [rows] = await connection.promise().query(query);
+            return rows;
+        } catch (error) {
+            throw new Error('Error al listar subcategorías: ' + error.message);
+        }
     }
 
-    static async agregar(nombre, descripcion, idCategoria, idPorcentajeIVA, estado) {
+    static async agregar(nombre, descripcion, idCategoria, idPorcentajeIVA, estado = 1) {
         const query = `
-            INSERT INTO subcategorias (nombre_sub_categoria, descripcion_sub_categoria, id_categoria, id_porcentaje_iva, estado_sub_categoria)
+            INSERT INTO subcategorias (nombre_sub_categoria, descripcion_sub_categoria, id_porcentaje_iva, estado_sub_categoria, id_categoria)
             VALUES (?, ?, ?, ?, ?);
         `;
-        await connection.promise().query(query, [nombre, descripcion, idCategoria, idPorcentajeIVA, estado]); // Usar connection
+        try {
+            await connection.promise().query(query, [nombre, descripcion, idPorcentajeIVA, estado, idCategoria]);
+        } catch (error) {
+            throw new Error('Error al agregar subcategoría: ' + error.message);
+        }
     }
 
     static async editar(id, nombre, descripcion, idCategoria, idPorcentajeIVA, estado) {
@@ -33,7 +41,11 @@ class Subcategoria {
             SET nombre_sub_categoria = ?, descripcion_sub_categoria = ?, id_categoria = ?, id_porcentaje_iva = ?, estado_sub_categoria = ?
             WHERE id_sub_categoria = ?;
         `;
-        await connection.promise().query(query, [nombre, descripcion, idCategoria, idPorcentajeIVA, estado, id]); // Usar connection
+        try {
+            await connection.promise().query(query, [nombre, descripcion, idCategoria, idPorcentajeIVA, estado, id]);
+        } catch (error) {
+            throw new Error('Error al editar subcategoría: ' + error.message);
+        }
     }
 
     static async cambiarEstado(id, estado) {
@@ -42,7 +54,11 @@ class Subcategoria {
             SET estado_sub_categoria = ? 
             WHERE id_sub_categoria = ?;
         `;
-        await connection.promise().query(query, [estado, id]); // Usar connection
+        try {
+            await connection.promise().query(query, [estado, id]);
+        } catch (error) {
+            throw new Error('Error al cambiar estado de subcategoría: ' + error.message);
+        }
     }
 
     static async obtenerPorId(id) {
@@ -56,11 +72,15 @@ class Subcategoria {
                 p.id_porcentaje_iva
             FROM subcategorias s
             INNER JOIN categorias c ON s.id_categoria = c.id_categoria
-            INNER JOIN porcentajes_iva p ON s.id_porcentaje_iva = p.id_porcentaje_iva
+            INNER JOIN porcentajesiva p ON s.id_porcentaje_iva = p.id_porcentaje_iva
             WHERE s.id_sub_categoria = ?;
         `;
-        const [rows] = await connection.promise().query(query, [id]); // Usar connection
-        return rows[0];
+        try {
+            const [rows] = await connection.promise().query(query, [id]);
+            return rows[0];
+        } catch (error) {
+            throw new Error('Error al obtener subcategoría por ID: ' + error.message);
+        }
     }
 }
 

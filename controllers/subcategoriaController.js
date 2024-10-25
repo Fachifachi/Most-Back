@@ -16,6 +16,7 @@ class SubcategoriaController {
 
     // Agregar subcategoría
     static async agregar(req, res) {
+        console.log('Solicitud recibida para agregar subcategoría:', req.body);
         const { nombre_sub_categoria, descripcion_sub_categoria, id_categoria, id_porcentaje_iva, estado_sub_categoria } = req.body;
         try {
             await Subcategoria.agregar(nombre_sub_categoria, descripcion_sub_categoria, id_categoria, id_porcentaje_iva, estado_sub_categoria);
@@ -53,10 +54,14 @@ class SubcategoriaController {
 
     // Obtener subcategoría por ID
     static async obtenerPorId(req, res) {
-        const { id } = req.params;
+        const { id } = req.params; // Obteniendo el id de los parámetros
         try {
             const subcategoria = await Subcategoria.obtenerPorId(id);
-            res.json(subcategoria);
+            if (subcategoria) {
+                res.json(subcategoria);
+            } else {
+                res.status(404).json({ message: 'Subcategoría no encontrada' });
+            }
         } catch (error) {
             console.error('Error al obtener subcategoría:', error);
             res.status(500).json({ message: 'Error al obtener subcategoría' });
