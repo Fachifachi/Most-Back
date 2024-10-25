@@ -1,12 +1,21 @@
-// routes/subcategoriaRoutes.js
 const express = require('express');
 const router = express.Router();
-const subcategoriaController = require('../controllers/subcategoriaController');
+const SubcategoriaController = require('../controllers/subcategoriaController');
 
-// Rutas para las subcategorías
-router.get('/', subcategoriaController.getSubcategorias);           // Obtener todas las subcategorías
-router.post('/', subcategoriaController.addSubcategoria);           // Agregar una nueva subcategoría
-router.put('/:id_sub_categoria', subcategoriaController.updateSubcategoria); // Actualizar una subcategoría
-router.delete('/:id_sub_categoria', subcategoriaController.deleteSubcategoria); // Desactivar una subcategoría
+
+// Ruta para listar subcategorías
+router.get('/', SubcategoriaController.listar);
+
+// Ruta para obtener una subcategoría por ID
+router.get('/:id', SubcategoriaController.obtenerPorId);
+
+// Ruta para agregar una nueva subcategoría
+router.post('/', SubcategoriaController.agregar);
+
+// Ruta para editar una subcategoría
+router.put('/:id', SubcategoriaController.editar);
+
+// Ruta para cambiar el estado de una subcategoría
+router.patch('/estado', SubcategoriaController.cambiarEstado);
 
 module.exports = router;

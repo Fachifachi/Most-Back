@@ -1,59 +1,67 @@
-// controllers/subcategoriaController.js
-const subcategoriaModel = require('../models/subcategoriaModel');
+const Subcategoria = require('../models/subcategoriaModel');
 
-// Obtener todas las subcategorías
-const getSubcategorias = async (req, res) => {
-  try {
-    const subcategorias = await subcategoriaModel.getSubcategorias();
-    res.json(subcategorias);
-  } catch (error) {
-    res.status(500).json({ error: 'Error al obtener subcategorías' });
-  }
-};
+class SubcategoriaController {
 
-// Agregar una nueva subcategoría
-const addSubcategoria = async (req, res) => {
-  const { nombre_sub_categoria, descripcion_sub_categoria, id_procentaje_iva, estado_sub_categoria } = req.body;
-  try {
-    const newSubcategoriaId = await subcategoriaModel.addSubcategoria(nombre_sub_categoria, descripcion_sub_categoria, id_procentaje_iva, estado_sub_categoria);
-    res.status(201).json({ id: newSubcategoriaId });
-  } catch (error) {
-    res.status(500).json({ error: 'Error al agregar subcategoría' });
-  }
-};
-
-// Actualizar una subcategoría
-const updateSubcategoria = async (req, res) => {
-  const { id_sub_categoria } = req.params;
-  const { estado_sub_categoria } = req.body;
-  try {
-    const affectedRows = await subcategoriaModel.updateSubcategoria(id_sub_categoria, estado_sub_categoria);
-    if (affectedRows === 0) {
-      return res.status(404).json({ error: 'Subcategoría no encontrada' });
+    // Listar subcategorías
+    static async listar(req, res) {
+        try {
+            const subcategorias = await Subcategoria.listar();
+            console.log(subcategorias);
+            res.json(subcategorias);
+        } catch (error) {
+            console.error('Error al listar subcategorías:', error);
+            res.status(500).json({ message: 'Error al listar subcategorías' });
+        }
     }
-    res.json({ message: 'Subcategoría actualizada' });
-  } catch (error) {
-    res.status(500).json({ error: 'Error al actualizar subcategoría' });
-  }
-};
 
-// Eliminar (desactivar) una subcategoría
-const deleteSubcategoria = async (req, res) => {
-  const { id_sub_categoria } = req.params;
-  try {
-    const affectedRows = await subcategoriaModel.deleteSubcategoria(id_sub_categoria);
-    if (affectedRows === 0) {
-      return res.status(404).json({ error: 'Subcategoría no encontrada' });
+    // Agregar subcategoría
+    static async agregar(req, res) {
+        const { nombre_sub_categoria, descripcion_sub_categoria, id_categoria, id_porcentaje_iva, estado_sub_categoria } = req.body;
+        try {
+            await Subcategoria.agregar(nombre_sub_categoria, descripcion_sub_categoria, id_categoria, id_porcentaje_iva, estado_sub_categoria);
+            res.json({ message: 'Subcategoría agregada exitosamente' });
+        } catch (error) {
+            console.error('Error al agregar subcategoría:', error);
+            res.status(500).json({ message: 'Error al agregar subcategoría' });
+        }
     }
-    res.json({ message: 'Subcategoría desactivada' });
-  } catch (error) {
-    res.status(500).json({ error: 'Error al desactivar subcategoría' });
-  }
-};
 
-module.exports = {
-  getSubcategorias,
-  addSubcategoria,
-  updateSubcategoria,
-  deleteSubcategoria,
-};
+    // Editar subcategoría
+    static async editar(req, res) {
+        const { id } = req.params;
+        const { nombre_sub_categoria, descripcion_sub_categoria, id_categoria, id_porcentaje_iva, estado_sub_categoria } = req.body;
+        try {
+            await Subcategoria.editar(id, nombre_sub_categoria, descripcion_sub_categoria, id_categoria, id_porcentaje_iva, estado_sub_categoria);
+            res.json({ message: 'Subcategoría actualizada exitosamente' });
+        } catch (error) {
+            console.error('Error al editar subcategoría:', error);
+            res.status(500).json({ message: 'Error al editar subcategoría' });
+        }
+    }
+
+    // Cambiar estado
+    static async cambiarEstado(req, res) {
+        const { id_sub_categoria, estado_sub_categoria } = req.body;
+        try {
+            await Subcategoria.cambiarEstado(id_sub_categoria, estado_sub_categoria);
+            res.json({ message: 'Estado de subcategoría cambiado exitosamente' });
+        } catch (error) {
+            console.error('Error al cambiar el estado de la subcategoría:', error);
+            res.status(500).json({ message: 'Error al cambiar estado' });
+        }
+    }
+
+    // Obtener subcategoría por ID
+    static async obtenerPorId(req, res) {
+        const { id } = req.params;
+        try {
+            const subcategoria = await Subcategoria.obtenerPorId(id);
+            res.json(subcategoria);
+        } catch (error) {
+            console.error('Error al obtener subcategoría:', error);
+            res.status(500).json({ message: 'Error al obtener subcategoría' });
+        }
+    }
+}
+
+module.exports = SubcategoriaController;

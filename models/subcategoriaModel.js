@@ -1,71 +1,67 @@
 // models/subcategoriaModel.js
-const db = require('../config/db');
+const connection = require('../config/db'); // Cambiar pool por connection
 
-// Función para obtener todas las subcategorías
-const getSubcategorias = () => {
-  return new Promise((resolve, reject) => {
-    const query = `
-      SELECT 
-        subcategorias.*, 
-        categorias.nombre_categoria 
-      FROM subcategorias
-      INNER JOIN categorias 
-      ON subcategorias.id_categoria = categorias.id_categoria
-    `;
+class Subcategoria {
+    static async listar() {
+        const query = `
+            SELECT 
+                s.id_sub_categoria, 
+                s.nombre_sub_categoria, 
+                s.descripcion_sub_categoria, 
+                s.estado_sub_categoria, 
+                c.nombre_categoria, 
+                p.nombre_porcentaje
+            FROM subcategorias s
+            INNER JOIN categorias c ON s.id_categoria = c.id_categoria
+            INNER JOIN porcentajesiva p ON s.id_porcentaje_iva = p.id_porcentaje_iva;
+        `;
+        const [rows] = await connection.promise().query(query); // Usar connection
+        return rows;
+    }
 
-    db.query(query, (err, results) => {
-      if (err) {
-        return reject(err);
-      }
-      resolve(results);
-    });
-  });
-};
-// Función para agregar una nueva subcategoría
-const addSubcategoria = (nombre_sub_categoria, descripcion_sub_categoria, id_procentaje_iva, estado_sub_categoria) => {
-  return new Promise((resolve, reject) => {
-    db.query('INSERT INTO subcategorias (nombre_sub_categoria, descripcion_sub_categoria, id_procentaje_iva, estado_sub_categoria) VALUES (?, ?, ?, ?)', 
-             [nombre_sub_categoria, descripcion_sub_categoria, id_procentaje_iva, estado_sub_categoria], 
-             (err, results) => {
-      if (err) {
-        return reject(err);
-      }
-      resolve(results.insertId);
-    });
-  });
-};
+    static async agregar(nombre, descripcion, idCategoria, idPorcentajeIVA, estado) {
+        const query = `
+            INSERT INTO subcategorias (nombre_sub_categoria, descripcion_sub_categoria, id_categoria, id_porcentaje_iva, estado_sub_categoria)
+            VALUES (?, ?, ?, ?, ?);
+        `;
+        await connection.promise().query(query, [nombre, descripcion, idCategoria, idPorcentajeIVA, estado]); // Usar connection
+    }
 
-// Función para actualizar una subcategoría
-const updateSubcategoria = (id_sub_categoria, estado_sub_categoria) => {
-  return new Promise((resolve, reject) => {
-    db.query('UPDATE subcategorias SET estado_sub_categoria = ? WHERE id_sub_categoria = ?', 
-             [estado_sub_categoria, id_sub_categoria], 
-             (err, results) => {
-      if (err) {
-        return reject(err);
-      }
-      resolve(results.affectedRows);
-    });
-  });
-};
+    static async editar(id, nombre, descripcion, idCategoria, idPorcentajeIVA, estado) {
+        const query = `
+            UPDATE subcategorias 
+            SET nombre_sub_categoria = ?, descripcion_sub_categoria = ?, id_categoria = ?, id_porcentaje_iva = ?, estado_sub_categoria = ?
+            WHERE id_sub_categoria = ?;
+        `;
+        await connection.promise().query(query, [nombre, descripcion, idCategoria, idPorcentajeIVA, estado, id]); // Usar connection
+    }
 
-// Función para eliminar (desactivar) una subcategoría
-const deleteSubcategoria = (id_sub_categoria) => {
-  return new Promise((resolve, reject) => {
-    db.query('UPDATE subcategorias SET estado_sub_categoria = 0 WHERE id_sub_categoria = ?', 
-             [id_sub_categoria], 
-             (err, results) => {
-      if (err) {
-        return reject(err);
-      }
-      resolve(results.affectedRows);
-    });
-  });
-};
+    static async cambiarEstado(id, estado) {
+        const query = `
+            UPDATE subcategorias 
+            SET estado_sub_categoria = ? 
+            WHERE id_sub_categoria = ?;
+        `;
+        await connection.promise().query(query, [estado, id]); // Usar connection
+    }
 
-module.exports = {
-  getSubcategorias,
-  addSubcategoria,
-  updateSubcategoria,
-  deleteSubcategoria,
-};
+    static async obtenerPorId(id) {
+        const query = `
+            SELECT 
+                s.id_sub_categoria, 
+                s.nombre_sub_categoria, 
+                s.descripcion_sub_categoria, 
+                s.estado_sub_categoria, 
+                c.id_categoria, 
+                p.id_porcentaje_iva
+            FROM subcategorias s
+            INNER JOIN categorias c ON s.id_categoria = c.id_categoria
+            INNER JOIN porcentajes_iva p ON s.id_porcentaje_iva = p.id_porcentaje_iva
+            WHERE s.id_sub_categoria = ?;
+        `;
+        const [rows] = await connection.promise().query(query, [id]); // Usar connection
+        return rows[0];
+    }
+}
+
+module.exports = Subcategoria;
