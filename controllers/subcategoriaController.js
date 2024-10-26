@@ -31,6 +31,12 @@ class SubcategoriaController {
     static async editar(req, res) {
         const { id } = req.params;
         const { nombre_sub_categoria, descripcion_sub_categoria, id_categoria, id_porcentaje_iva, estado_sub_categoria } = req.body;
+    
+        // Validar entrada
+        if (!nombre_sub_categoria || !id_categoria || !id_porcentaje_iva) {
+            return res.status(400).json({ message: 'Faltan datos requeridos' });
+        }
+    
         try {
             await Subcategoria.editar(id, nombre_sub_categoria, descripcion_sub_categoria, id_categoria, id_porcentaje_iva, estado_sub_categoria);
             res.json({ message: 'Subcategoría actualizada exitosamente' });

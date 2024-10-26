@@ -4,16 +4,22 @@ const connection = require('../config/db'); // Cambiar pool por connection
 class Subcategoria {
     static async listar() {
         const query = `
-            SELECT 
-                s.id_sub_categoria, 
-                s.nombre_sub_categoria, 
-                s.descripcion_sub_categoria, 
-                s.estado_sub_categoria, 
-                c.nombre_categoria, 
-                p.nombre_porcentaje
-            FROM subcategorias s
-            INNER JOIN categorias c ON s.id_categoria = c.id_categoria
-            INNER JOIN porcentajesiva p ON s.id_porcentaje_iva = p.id_porcentaje_iva;
+           SELECT 
+    sc.id_sub_categoria,
+    sc.nombre_sub_categoria,
+    sc.descripcion_sub_categoria,
+    sc.estado_sub_categoria,
+    c.id_categoria, -- Asegúrate de incluir el ID de la categoría
+    pi.id_porcentaje_iva, -- Asegúrate de incluir el ID del porcentaje de IVA
+    c.nombre_categoria,
+    pi.nombre_porcentaje
+FROM 
+    subcategorias sc
+JOIN 
+    categorias c ON sc.id_categoria = c.id_categoria
+JOIN 
+    porcentajesiva pi ON sc.id_porcentaje_iva = pi.id_porcentaje_iva;
+
         `;
         try {
             const [rows] = await connection.promise().query(query);
@@ -38,8 +44,14 @@ class Subcategoria {
     static async editar(id, nombre, descripcion, idCategoria, idPorcentajeIVA, estado) {
         const query = `
             UPDATE subcategorias 
-            SET nombre_sub_categoria = ?, descripcion_sub_categoria = ?, id_categoria = ?, id_porcentaje_iva = ?, estado_sub_categoria = ?
-            WHERE id_sub_categoria = ?;
+            SET 
+                nombre_sub_categoria = ?, 
+                descripcion_sub_categoria = ?, 
+                id_categoria = ?, 
+                id_porcentaje_iva = ?, 
+                estado_sub_categoria = ? 
+            WHERE 
+                id_sub_categoria = ?;
         `;
         try {
             await connection.promise().query(query, [nombre, descripcion, idCategoria, idPorcentajeIVA, estado, id]);
@@ -47,7 +59,6 @@ class Subcategoria {
             throw new Error('Error al editar subcategoría: ' + error.message);
         }
     }
-
     static async cambiarEstado(id, estado) {
         const query = `
             UPDATE subcategorias 
