@@ -1,12 +1,14 @@
-// routes/insumoRoutes.js
 const express = require('express');
 const router = express.Router();
-const insumoController = require('../controllers/insumoController');
+const InsumoController = require('../controllers/insumoController');
 
-// Rutas para los insumos
-router.get('/', insumoController.getInsumos);           // Obtener todos los insumos
-router.post('/', insumoController.addInsumo);           // Agregar un nuevo insumo
-router.put('/:id_insumo', insumoController.updateInsumo); // Actualizar un insumo
-router.delete('/:id_insumo', insumoController.deleteInsumo); // Desactivar un insumo
+// Definir las rutas para los insumos
+router.get('/', InsumoController.listar);              // Listar todos los insumos
+router.post('/', InsumoController.agregar);            // Agregar un nuevo insumo
+router.put('/:id', InsumoController.editar);           // Editar un insumo existente
+router.patch('/estado', InsumoController.cambiarEstado); // Cambiar estado de un insumo
+router.get('/:id', InsumoController.obtenerPorId);     // Obtener un insumo por su ID
+router.get('/subcategorias', InsumoController.listarSubcategorias); // Obtener subcategorías
+router.get('/tamanios', InsumoController.listarTamanios);           // Obtener tamaños
 
 module.exports = router;

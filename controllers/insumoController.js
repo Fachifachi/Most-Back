@@ -1,59 +1,98 @@
-// controllers/insumoController.js
-const insumoModel = require('../models/insumoModel');
+const Insumo = require('../models/insumoModel');
 
-// Obtener todos los insumos
-const getInsumos = async (req, res) => {
-  try {
-    const insumos = await insumoModel.getInsumos();
-    res.json(insumos);
-  } catch (error) {
-    res.status(500).json({ error: 'Error al obtener insumos' });
-  }
-};
+class InsumoController {
 
-// Agregar un nuevo insumo
-const addInsumo = async (req, res) => {
-  const { id_sub_categoria, id_tamanio, nombre_insumo, descripcion_insumo, stock_insumo, estado_insumo, precio_insumo } = req.body;
-  try {
-    const newInsumoId = await insumoModel.addInsumo(id_sub_categoria, id_tamanio, nombre_insumo, descripcion_insumo, stock_insumo, estado_insumo, precio_insumo);
-    res.status(201).json({ id: newInsumoId });
-  } catch (error) {
-    res.status(500).json({ error: 'Error al agregar insumo' });
-  }
-};
-
-// Actualizar un insumo
-const updateInsumo = async (req, res) => {
-  const { id_insumo } = req.params;
-  const { id_sub_categoria, id_tamanio, nombre_insumo, descripcion_insumo, stock_insumo, estado_insumo, precio_insumo } = req.body;
-  try {
-    const affectedRows = await insumoModel.updateInsumo(id_insumo, id_sub_categoria, id_tamanio, nombre_insumo, descripcion_insumo, stock_insumo, estado_insumo, precio_insumo);
-    if (affectedRows === 0) {
-      return res.status(404).json({ error: 'Insumo no encontrado' });
+    // Listar insumos
+    static async listar(req, res) {
+        try {
+            const insumos = await Insumo.listarInsumos();
+            console.log(insumos);
+            res.json(insumos);
+        } catch (error) {
+            console.error('Error al listar insumos:', error);
+            res.status(500).json({ message: 'Error al listar insumos' });
+        }
     }
-    res.json({ message: 'Insumo actualizado' });
-  } catch (error) {
-    res.status(500).json({ error: 'Error al actualizar insumo' });
-  }
-};
-
-// Eliminar (desactivar) un insumo
-const deleteInsumo = async (req, res) => {
-  const { id_insumo } = req.params;
-  try {
-    const affectedRows = await insumoModel.deleteInsumo(id_insumo);
-    if (affectedRows === 0) {
-      return res.status(404).json({ error: 'Insumo no encontrado' });
+// Listar todas las subcategorías
+static async listarSubcategorias(req, res) {
+    try {
+        const subcategorias = await Insumo.listarSubcategorias();
+        res.json(subcategorias);
+    } catch (error) {
+        console.error('Error al listar subcategorías:', error);
+        res.status(500).json({ message: 'Error al listar subcategorías' });
     }
-    res.json({ message: 'Insumo desactivado' });
-  } catch (error) {
-    res.status(500).json({ error: 'Error al desactivar insumo' });
-  }
-};
+}
 
-module.exports = {
-  getInsumos,
-  addInsumo,
-  updateInsumo,
-  deleteInsumo,
-};
+// Listar todos los tamaños
+static async listarTamanios(req, res) {
+    try {
+        const tamanios = await Insumo.listarTamanios();
+        res.json(tamanios);
+    } catch (error) {
+        console.error('Error al listar tamaños:', error);
+        res.status(500).json({ message: 'Error al listar tamaños' });
+    }
+}
+    // Agregar insumo
+    static async agregar(req, res) {
+        console.log('Solicitud recibida para agregar insumo:', req.body);
+        const { id_sub_categoria, id_tamanio, nombre_insumo, descripcion_insumo, stock_insumo, precio_insumo, estado_insumo } = req.body;
+        try {
+            await Insumo.agregarInsumo(id_sub_categoria, id_tamanio, nombre_insumo, descripcion_insumo, stock_insumo, precio_insumo, estado_insumo);
+            res.json({ message: 'Insumo agregado exitosamente' });
+        } catch (error) {
+            console.error('Error al agregar insumo:', error);
+            res.status(500).json({ message: 'Error al agregar insumo' });
+        }
+    }
+
+    // Editar insumo
+    static async editar(req, res) {
+        const { id } = req.params;
+        const { id_sub_categoria, id_tamanio, nombre_insumo, descripcion_insumo, stock_insumo, precio_insumo, estado_insumo } = req.body;
+    
+        // Validar entrada
+        if (!nombre_insumo || !id_sub_categoria || !id_tamanio) {
+            return res.status(400).json({ message: 'Faltan datos requeridos' });
+        }
+    
+        try {
+            await Insumo.editarInsumo(id, id_sub_categoria, id_tamanio, nombre_insumo, descripcion_insumo, stock_insumo, precio_insumo, estado_insumo);
+            res.json({ message: 'Insumo actualizado exitosamente' });
+        } catch (error) {
+            console.error('Error al editar insumo:', error);
+            res.status(500).json({ message: 'Error al editar insumo' });
+        }
+    }
+
+    // Cambiar estado de insumo
+    static async cambiarEstado(req, res) {
+        const { id_insumo, estado_insumo } = req.body;
+        try {
+            await Insumo.cambiarEstadoInsumo(id_insumo, estado_insumo);
+            res.json({ message: 'Estado del insumo cambiado exitosamente' });
+        } catch (error) {
+            console.error('Error al cambiar el estado del insumo:', error);
+            res.status(500).json({ message: 'Error al cambiar estado del insumo' });
+        }
+    }
+
+    // Obtener insumo por ID
+    static async obtenerPorId(req, res) {
+        const { id } = req.params;
+        try {
+            const insumo = await Insumo.obtenerInsumoPorId(id);
+            if (insumo) {
+                res.json(insumo);
+            } else {
+                res.status(404).json({ message: 'Insumo no encontrado' });
+            }
+        } catch (error) {
+            console.error('Error al obtener insumo:', error);
+            res.status(500).json({ message: 'Error al obtener insumo' });
+        }
+    }
+}
+
+module.exports = InsumoController;

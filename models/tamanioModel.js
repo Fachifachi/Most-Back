@@ -16,7 +16,7 @@ const getTamanios = () => {
 // Función para agregar un nuevo tamaño
 const addTamanio = (nombre_tamanio, estado_tamanio) => {
   return new Promise((resolve, reject) => {
-    db.query('INSERT INTO tamanios (nombre_tamanio, estado_tamanio) VALUES (?, ?)', [nombre_tamanio, estado_tamanio], (err, results) => {
+    db.query('INSERT INTO tamanios (nombre_tamanio, estado_tamanio) VALUES (?, )', [nombre_tamanio, estado_tamanio], (err, results) => {
       if (err) {
         return reject(err);
       }
@@ -25,19 +25,23 @@ const addTamanio = (nombre_tamanio, estado_tamanio) => {
   });
 };
 
-// Función para actualizar un tamaño
-const updateTamanio = (id_tamanio, estado_tamanio) => {
+// Función para actualizar un tamaño, incluyendo el nombre
+const updateTamanio = (id_tamanio, nombre_tamanio, estado_tamanio) => {
   return new Promise((resolve, reject) => {
-    db.query('UPDATE tamanios SET estado_tamanio = ? WHERE id_tamanio = ?', [estado_tamanio, id_tamanio], (err, results) => {
-      if (err) {
-        return reject(err);
+    db.query(
+      'UPDATE tamanios SET nombre_tamanio = ?, estado_tamanio = ? WHERE id_tamanio = ?',
+      [nombre_tamanio, estado_tamanio, id_tamanio],
+      (err, results) => {
+        if (err) {
+          return reject(err);
+        }
+        resolve(results.affectedRows);
       }
-      resolve(results.affectedRows);
-    });
+    );
   });
 };
 
-// Función para eliminar (desactivar) un tamaño
+// F (desactivar) un tamaño
 const deleteTamanio = (id_tamanio) => {
   return new Promise((resolve, reject) => {
     db.query('UPDATE tamanios SET estado_tamanio = 0 WHERE id_tamanio = ?', [id_tamanio], (err, results) => {
@@ -48,10 +52,20 @@ const deleteTamanio = (id_tamanio) => {
     });
   });
 };
-
+const getTamaniosById = (id_tamanio) => {
+  return new Promise((resolve, reject) => {
+    db.query('SELECT * FROM tamanios WHERE id_tamanio = ?', [id_tamanio], (err, results) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(results[0]); // Devuelve el primer resultado
+    });
+  });
+};
 module.exports = {
   getTamanios,
   addTamanio,
   updateTamanio,
   deleteTamanio,
+  getTamaniosById // Asegúrate de incluir esto
 };

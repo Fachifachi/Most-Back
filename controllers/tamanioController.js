@@ -25,9 +25,9 @@ const addTamanio = async (req, res) => {
 // Actualizar un tamaño
 const updateTamanio = async (req, res) => {
   const { id_tamanio } = req.params;
-  const { estado_tamanio } = req.body;
+  const { nombre_tamanio, estado_tamanio } = req.body;
   try {
-    const affectedRows = await tamanioModel.updateTamanio(id_tamanio, estado_tamanio);
+    const affectedRows = await tamanioModel.updateTamanio(id_tamanio, nombre_tamanio, estado_tamanio);
     if (affectedRows === 0) {
       return res.status(404).json({ error: 'Tamaño no encontrado' });
     }
@@ -37,17 +37,23 @@ const updateTamanio = async (req, res) => {
   }
 };
 
-// Eliminar (desactivar) un tamaño
-const deleteTamanio = async (req, res) => {
+// (desactivar) un tamaño
+const toggleTamanio = async (req, res) => {
   const { id_tamanio } = req.params;
   try {
-    const affectedRows = await tamanioModel.deleteTamanio(id_tamanio);
-    if (affectedRows === 0) {
+    // Obtén el tamaño actual
+    const tamanio = await tamanioModel.getTamaniosById(id_tamanio); // Asegúrate de tener esta función en el modelo
+    if (!tamanio) {
       return res.status(404).json({ error: 'Tamaño no encontrado' });
     }
-    res.json({ message: 'Tamaño desactivado' });
+
+    // Cambia el estado
+    const newEstado = tamanio.estado_tamanio === 1 ? 0 : 1; // Cambia el estado
+    await tamanioModel.updateTamanio(id_tamanio, tamanio.nombre_tamanio, newEstado);
+    res.json({ message: 'Estado del tamaño actualizado', newEstado });
   } catch (error) {
-    res.status(500).json({ error: 'Error al desactivar tamaño' });
+    console.error(error); // Agrega esto para ver el error en la consola
+    res.status(500).json({ error: 'Error al actualizar estado de tamaño' });
   }
 };
 
@@ -55,5 +61,5 @@ module.exports = {
   getTamanios,
   addTamanio,
   updateTamanio,
-  deleteTamanio,
+  toggleTamanio, // Asegúrate de exportarlo
 };
