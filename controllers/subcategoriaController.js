@@ -1,12 +1,17 @@
+// controllers/SubcategoriaController.js
 const Subcategoria = require('../models/subcategoriaModel');
 
 class SubcategoriaController {
 
     // Listar subcategorías
     static async listar(req, res) {
+        const { searchTerm, estado, idCategoria } = req.query; // Asegúrate de que los parámetros se reciban correctamente
         try {
-            const subcategorias = await Subcategoria.listar();
-            console.log(subcategorias);
+            const subcategorias = await Subcategoria.listar({ 
+                searchTerm, 
+                estado: estado ? parseInt(estado) : null, 
+                idCategoria: idCategoria ? parseInt(idCategoria) : null 
+            });
             res.json(subcategorias);
         } catch (error) {
             console.error('Error al listar subcategorías:', error);
@@ -61,6 +66,7 @@ class SubcategoriaController {
     // Obtener subcategoría por ID
     static async obtenerPorId(req, res) {
         const { id } = req.params; // Obteniendo el id de los parámetros
+        
         try {
             const subcategoria = await Subcategoria.obtenerPorId(id);
             if (subcategoria) {

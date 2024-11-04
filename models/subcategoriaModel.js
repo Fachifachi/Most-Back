@@ -2,27 +2,47 @@
 const connection = require('../config/db'); // Cambiar pool por connection
 
 class Subcategoria {
-    static async listar() {
-        const query = `
-           SELECT 
-    sc.id_sub_categoria,
-    sc.nombre_sub_categoria,
-    sc.descripcion_sub_categoria,
-    sc.estado_sub_categoria,
-    c.id_categoria, -- Asegúrate de incluir el ID de la categoría
-    pi.id_porcentaje_iva, -- Asegúrate de incluir el ID del porcentaje de IVA
-    c.nombre_categoria,
-    pi.nombre_porcentaje
-FROM 
-    subcategorias sc
-JOIN 
-    categorias c ON sc.id_categoria = c.id_categoria
-JOIN 
-    porcentajesiva pi ON sc.id_porcentaje_iva = pi.id_porcentaje_iva;
+    static async listar({ searchTerm = '', estado = null, idCategoria = null }) {
+        let query = `
+            SELECT 
+                sc.id_sub_categoria,
+                sc.nombre_sub_categoria,
+                sc.descripcion_sub_categoria,
+                sc.estado_sub_categoria,
+                c.id_categoria,
+                pi.id_porcentaje_iva,
+                c.nombre_categoria,
+                pi.nombre_porcentaje
+            FROM 
+                subcategorias sc
+            JOIN 
+                categorias c ON sc.id_categoria = c.id_categoria
+            JOIN 
+                porcentajesiva pi ON sc.id_porcentaje_iva = pi.id_porcentaje_iva
+            WHERE 1=1`; // Usar 1=1 para facilitar la adición de condiciones
 
-        `;
+        const params = [];
+
+        // Filtrado por término de búsqueda
+        if (searchTerm) {
+            query += ` AND sc.nombre_sub_categoria LIKE ?`;
+            params.push(`%${searchTerm}%`);
+        }
+
+        // Filtrado por estado
+        if (estado !== null) {
+            query += ` AND sc.estado_sub_categoria = ?`;
+            params.push(estado);
+        }
+
+        // Filtrado por categoría
+        if (idCategoria !== null) {
+            query += ` AND sc.id_categoria = ?`;
+            params.push(idCategoria);
+        }
+
         try {
-            const [rows] = await connection.promise().query(query);
+            const [rows] = await connection.promise().query(query, params);
             return rows;
         } catch (error) {
             throw new Error('Error al listar subcategorías: ' + error.message);
@@ -59,6 +79,7 @@ JOIN
             throw new Error('Error al editar subcategoría: ' + error.message);
         }
     }
+
     static async cambiarEstado(id, estado) {
         const query = `
             UPDATE subcategorias 

@@ -1,10 +1,19 @@
-// models/tamanioModel.js
 const db = require('../config/db');
 
 // Función para obtener todos los tamaños
-const getTamanios = () => {
+const getTamanios = (search = '', filter = 'all', order = 'asc') => {
   return new Promise((resolve, reject) => {
-    db.query('SELECT * FROM tamanios', (err, results) => {
+    let query = 'SELECT * FROM tamanios WHERE nombre_tamanio LIKE ?';
+    let params = [`%${search}%`];
+
+    if (filter !== 'all') {
+      query += ' AND estado_tamanio = ?';
+      params.push(filter === 'active' ? 1 : 0);
+    }
+
+    query += ` ORDER BY nombre_tamanio ${order}`;
+    
+    db.query(query, params, (err, results) => {
       if (err) {
         return reject(err);
       }
@@ -16,7 +25,7 @@ const getTamanios = () => {
 // Función para agregar un nuevo tamaño
 const addTamanio = (nombre_tamanio, estado_tamanio) => {
   return new Promise((resolve, reject) => {
-    db.query('INSERT INTO tamanios (nombre_tamanio, estado_tamanio) VALUES (?, )', [nombre_tamanio, estado_tamanio], (err, results) => {
+    db.query('INSERT INTO tamanios (nombre_tamanio, estado_tamanio) VALUES (?, ?)', [nombre_tamanio, estado_tamanio], (err, results) => {
       if (err) {
         return reject(err);
       }
@@ -41,7 +50,7 @@ const updateTamanio = (id_tamanio, nombre_tamanio, estado_tamanio) => {
   });
 };
 
-// F (desactivar) un tamaño
+// (desactivar) un tamaño
 const deleteTamanio = (id_tamanio) => {
   return new Promise((resolve, reject) => {
     db.query('UPDATE tamanios SET estado_tamanio = 0 WHERE id_tamanio = ?', [id_tamanio], (err, results) => {
@@ -52,6 +61,7 @@ const deleteTamanio = (id_tamanio) => {
     });
   });
 };
+
 const getTamaniosById = (id_tamanio) => {
   return new Promise((resolve, reject) => {
     db.query('SELECT * FROM tamanios WHERE id_tamanio = ?', [id_tamanio], (err, results) => {
@@ -62,6 +72,7 @@ const getTamaniosById = (id_tamanio) => {
     });
   });
 };
+
 module.exports = {
   getTamanios,
   addTamanio,

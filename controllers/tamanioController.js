@@ -1,10 +1,10 @@
-// controllers/tamanioController.js
 const tamanioModel = require('../models/tamanioModel');
 
 // Obtener todos los tamaños
 const getTamanios = async (req, res) => {
+  const { search = '', filter = 'all', order = 'asc' } = req.query;
   try {
-    const tamanios = await tamanioModel.getTamanios();
+    const tamanios = await tamanioModel.getTamanios(search, filter, order);
     res.json(tamanios);
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener tamaños' });
@@ -41,18 +41,16 @@ const updateTamanio = async (req, res) => {
 const toggleTamanio = async (req, res) => {
   const { id_tamanio } = req.params;
   try {
-    // Obtén el tamaño actual
-    const tamanio = await tamanioModel.getTamaniosById(id_tamanio); // Asegúrate de tener esta función en el modelo
+    const tamanio = await tamanioModel.getTamaniosById(id_tamanio);
     if (!tamanio) {
       return res.status(404).json({ error: 'Tamaño no encontrado' });
     }
 
-    // Cambia el estado
     const newEstado = tamanio.estado_tamanio === 1 ? 0 : 1; // Cambia el estado
     await tamanioModel.updateTamanio(id_tamanio, tamanio.nombre_tamanio, newEstado);
     res.json({ message: 'Estado del tamaño actualizado', newEstado });
   } catch (error) {
-    console.error(error); // Agrega esto para ver el error en la consola
+    console.error(error);
     res.status(500).json({ error: 'Error al actualizar estado de tamaño' });
   }
 };
@@ -61,5 +59,5 @@ module.exports = {
   getTamanios,
   addTamanio,
   updateTamanio,
-  toggleTamanio, // Asegúrate de exportarlo
+  toggleTamanio,
 };

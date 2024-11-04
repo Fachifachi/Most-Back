@@ -23,11 +23,30 @@ const disablePorcentajeIva = (id, callback) => {
 const toggleStatus = (id, callback) => {
     db.query('UPDATE porcentajesiva SET activo = 1 - activo WHERE id_porcentaje_iva = ?', [id], callback);
 };
+const getFilteredPorcentajesIva = (filtros, callback) => {
+    let query = 'SELECT * FROM porcentajesiva WHERE 1=1';
+    const values = [];
 
+    if (filtros.nombre_porcentaje) {
+        query += ' AND nombre_porcentaje LIKE ?';
+        values.push(`%${filtros.nombre_porcentaje}%`);
+    }
+
+    if (filtros.activo !== null) { // Revisa si activo es diferente de null
+        query += ' AND activo = ?';
+        values.push(filtros.activo);
+    }
+
+    console.log("Consulta ejecutada:", query); // Verifica la consulta en consola
+    console.log("Valores de la consulta:", values);
+
+    db.query(query, values, callback);
+};
 module.exports = {
     getAllPorcentajesIva,
     createPorcentajeIva,
     updatePorcentajeIva,
     disablePorcentajeIva,
     toggleStatus,
+    getFilteredPorcentajesIva, // Nueva función de filtrado
 };

@@ -72,6 +72,21 @@ const toggleStatus = (req, res) => {
         res.status(200).send('Estado del porcentaje de IVA actualizado');
     });
 };
+const getFilteredPorcentajesIva = (req, res) => {
+    const filtros = {
+        nombre_porcentaje: req.query.nombre_porcentaje || '',
+        activo: req.query.activo !== undefined ? parseInt(req.query.activo, 10) : null
+    };
+
+    console.log("Filtros recibidos:", filtros); // Depuración
+
+    PorcentajeIva.getFilteredPorcentajesIva(filtros, (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        res.json(results);
+    });
+};
 
 module.exports = {
     getAllPorcentajesIva,
@@ -79,4 +94,5 @@ module.exports = {
     updatePorcentajeIva,
     disablePorcentajeIva,
     toggleStatus,
+    getFilteredPorcentajesIva, // Nueva función de filtrado
 };
