@@ -40,6 +40,7 @@ const porcentajeIvaRoutes = require('./routes/porcentajeIvaRoutes');
 const medioPagoRoutes = require('./routes/medioPagoRoutes');
 const sucursalRoutes = require('./routes/sucursalRoutes');
 const insumoRoutes = require('./routes/insumoRoutes'); // Importar rutas de insumos
+const empleadoRoutes = require('./routes/empleadoRoutes'); // Importar rutas de insumos
 
 // Usar rutas
 app.use('/usuarios', usuarioRoutes);
@@ -52,6 +53,7 @@ app.use('/porcentajesiva', porcentajeIvaRoutes);
 app.use('/medios_pago', medioPagoRoutes);
 app.use('/sucursales', sucursalRoutes);
 app.use('/insumos', insumoRoutes); // Usar rutas de insumos
+app.use('/empleados', empleadoRoutes); // Usar rutas de insumos
 
 // Iniciar servidor
 app.listen(3000, () => {

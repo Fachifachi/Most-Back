@@ -1,63 +1,61 @@
-// models/usuarioModel.js
 const db = require('../config/db');
 
-// Función para obtener todos los usuarios
-const getUsuarios = () => {
-  return new Promise((resolve, reject) => {
-    db.query('SELECT * FROM usuarios', (err, results) => {
-      if (err) {
-        return reject(err);
-      }
-      resolve(results);
-    });
-  });
+// Obtener todos los administradores
+const getAllAdmins = (callback) => {
+    db.query('SELECT * FROM usuarios WHERE id_rol = 2', callback);
 };
 
-// Función para agregar un nuevo usuario
-const addUsuario = (nombre_usuario, correo_usuario, clave_usuario, estado_usuario) => {
-  return new Promise((resolve, reject) => {
-    db.query('INSERT INTO usuarios (nombre_usuario, correo_usuario, clave_usuario, estado_usuario) VALUES (?, ?, ?, ?)', 
-             [nombre_usuario, correo_usuario, clave_usuario, estado_usuario], 
-             (err, results) => {
-      if (err) {
-        return reject(err);
-      }
-      resolve(results.insertId);
-    });
-  });
+// Obtener todos los empleados
+const getAllEmpleados = (callback) => {
+    db.query('SELECT * FROM usuarios WHERE id_rol = 3', callback);
 };
 
-// Función para actualizar un usuario
-const updateUsuario = (id_usuario, estado_usuario) => {
-  return new Promise((resolve, reject) => {
-    db.query('UPDATE usuarios SET estado_usuario = ? WHERE id_usuario = ?', 
-             [estado_usuario, id_usuario], 
-             (err, results) => {
-      if (err) {
-        return reject(err);
-      }
-      resolve(results.affectedRows);
-    });
-  });
+// Crear un nuevo empleado
+const createEmpleado = (empleado, callback) => {
+    const { nombre_usuario, correo_usuario, clave_usuario } = empleado;
+    db.query(
+        'INSERT INTO usuarios (nombre_usuario, correo_usuario, clave_usuario, estado_usuario, id_rol) VALUES (?, ?, ?, 1, 3)', // id_rol = 3 para empleados
+        [nombre_usuario, correo_usuario, clave_usuario],
+        callback
+    );
 };
 
-// Función para eliminar (desactivar) un usuario
-const deleteUsuario = (id_usuario) => {
-  return new Promise((resolve, reject) => {
-    db.query('UPDATE usuarios SET estado_usuario = 0 WHERE id_usuario = ?', 
-             [id_usuario], 
-             (err, results) => {
-      if (err) {
-        return reject(err);
-      }
-      resolve(results.affectedRows);
-    });
-  });
+// Crear un nuevo administrador
+const createAdmin = (admin, callback) => {
+    const { nombre_usuario, correo_usuario, clave_usuario } = admin;
+    db.query(
+        'INSERT INTO usuarios (nombre_usuario, correo_usuario, clave_usuario, estado_usuario, id_rol) VALUES (?, ?, ?, 1, 2)', // id_rol = 2 para administradores
+        [nombre_usuario, correo_usuario, clave_usuario],
+        callback
+    );
+};
+
+// Actualizar un usuario
+const updateUsuario = (id_usuario, usuario, callback) => {
+    const { nombre_usuario, correo_usuario, clave_usuario, estado_usuario } = usuario;
+    db.query(
+        'UPDATE usuarios SET nombre_usuario = ?, correo_usuario = ?, clave_usuario = ?, estado_usuario = ? WHERE id_usuario = ?',
+        [nombre_usuario, correo_usuario, clave_usuario, estado_usuario, id_usuario],
+        callback
+    );
+};
+
+// Deshabilitar un usuario
+const deleteUsuario = (id_usuario, callback) => {
+    db.query('UPDATE usuarios SET estado_usuario = 0 WHERE id_usuario = ?', [id_usuario], callback);
+};
+
+// Cambiar estado de un usuario (Habilitar/Deshabilitar)
+const toggleStatus = (id_usuario, callback) => {
+    db.query('UPDATE usuarios SET estado_usuario = 1 - estado_usuario WHERE id_usuario = ?', [id_usuario], callback);
 };
 
 module.exports = {
-  getUsuarios,
-  addUsuario,
-  updateUsuario,
-  deleteUsuario,
+    getAllAdmins,
+    getAllEmpleados,
+    createEmpleado,
+    createAdmin,
+    updateUsuario,
+    deleteUsuario,
+    toggleStatus,
 };
