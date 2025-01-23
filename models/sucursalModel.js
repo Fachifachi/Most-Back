@@ -1,63 +1,68 @@
-// models/sucursalModel.js
-const db = require('../config/db');
+const connection = require('../config/db');
 
-// Función para obtener todas las sucursales
-const getSucursales = () => {
-  return new Promise((resolve, reject) => {
-    db.query('SELECT * FROM sucursales', (err, results) => {
-      if (err) {
-        return reject(err);
-      }
-      resolve(results);
-    });
-  });
-};
+class Sucursal {
+    // Obtener la sucursal con nombres de provincia y localidad
+    static async obtener() {
+        const query = `
+            SELECT 
+                s.id_sucursal, 
+                s.nombre_sucursal, 
+                s.cuit, 
+                s.inicio_actividades, 
+                s.ingresos_brutos, 
+                s.domicilio, 
+                s.iva, 
+                s.estado_sucursal,
+                s.id_localidad,
+                l.nombre_localidad,
+                l.id_provincia,
+                p.nombre_provincia
+            FROM sucursales s
+            JOIN localidades l ON s.id_localidad = l.id_localidad
+            JOIN provincias p ON l.id_provincia = p.id_provincia
+            LIMIT 1;
+        `;
+        try {
+            const [rows] = await connection.promise().query(query);
+            return rows[0]; // Como solo hay una sucursal, devolvemos la primera
+        } catch (error) {
+            throw new Error('Error al obtener la sucursal: ' + error.message);
+        }
+    }
 
-// Función para agregar una nueva sucursal
-const addSucursal = (id_localidad, nombre_sucursal, cuit, inicio_actividades, ingresos_brutos, domicilio, iva, estado_sucursal) => {
-  return new Promise((resolve, reject) => {
-    db.query('INSERT INTO sucursales (id_localidad, nombre_sucursal, cuit, inicio_actividades, ingresos_brutos, domicilio, iva, estado_sucursal) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
-             [id_localidad, nombre_sucursal, cuit, inicio_actividades, ingresos_brutos, domicilio, iva, estado_sucursal], 
-             (err, results) => {
-      if (err) {
-        return reject(err);
-      }
-      resolve(results.insertId);
-    });
-  });
-};
+    // Editar la sucursal
+    static async editar(id, data) {
+        const query = `
+            UPDATE sucursales 
+            SET 
+                nombre_sucursal = ?, 
+                cuit = ?, 
+                inicio_actividades = ?, 
+                ingresos_brutos = ?, 
+                domicilio = ?, 
+                iva = ?, 
+                estado_sucursal = ?,
+                id_localidad = ?
+            WHERE id_sucursal = ?;
+        `;
+        const { nombre_sucursal, cuit, inicio_actividades, ingresos_brutos, domicilio, iva, estado_sucursal, id_localidad } = data;
 
-// Función para actualizar una sucursal
-const updateSucursal = (id_sucursal, estado_sucursal) => {
-  return new Promise((resolve, reject) => {
-    db.query('UPDATE sucursales SET estado_sucursal = ? WHERE id_sucursal = ?', 
-             [estado_sucursal, id_sucursal], 
-             (err, results) => {
-      if (err) {
-        return reject(err);
-      }
-      resolve(results.affectedRows);
-    });
-  });
-};
+        try {
+            await connection.promise().query(query, [
+                nombre_sucursal,
+                cuit,
+                inicio_actividades,
+                ingresos_brutos,
+                domicilio,
+                iva,
+                estado_sucursal,
+                id_localidad,
+                id
+            ]);
+        } catch (error) {
+            throw new Error('Error al editar la sucursal: ' + error.message);
+        }
+    }
+}
 
-// Función para eliminar (desactivar) una sucursal
-const deleteSucursal = (id_sucursal) => {
-  return new Promise((resolve, reject) => {
-    db.query('UPDATE sucursales SET estado_sucursal = 0 WHERE id_sucursal = ?', 
-             [id_sucursal], 
-             (err, results) => {
-      if (err) {
-        return reject(err);
-      }
-      resolve(results.affectedRows);
-    });
-  });
-};
-
-module.exports = {
-  getSucursales,
-  addSucursal,
-  updateSucursal,
-  deleteSucursal,
-};
+module.exports = Sucursal;

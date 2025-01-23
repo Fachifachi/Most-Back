@@ -1,59 +1,61 @@
-// controllers/sucursalController.js
-const sucursalModel = require('../models/sucursalModel');
+const Sucursal = require('../models/sucursalModel');
+const Provincia = require('../models/provinciaModel');
+const Localidad = require('../models/localidadModel');
 
-// Obtener todas las sucursales
-const getSucursales = async (req, res) => {
-  try {
-    const sucursales = await sucursalModel.getSucursales();
-    res.json(sucursales);
-  } catch (error) {
-    res.status(500).json({ error: 'Error al obtener sucursales' });
-  }
-};
-
-// Agregar una nueva sucursal
-const addSucursal = async (req, res) => {
-  const { id_localidad, nombre_sucursal, cuit, inicio_actividades, ingresos_brutos, domicilio, iva, estado_sucursal } = req.body;
-  try {
-    const newSucursalId = await sucursalModel.addSucursal(id_localidad, nombre_sucursal, cuit, inicio_actividades, ingresos_brutos, domicilio, iva, estado_sucursal);
-    res.status(201).json({ id: newSucursalId });
-  } catch (error) {
-    res.status(500).json({ error: 'Error al agregar sucursal' });
-  }
-};
-
-// Actualizar una sucursal
-const updateSucursal = async (req, res) => {
-  const { id_sucursal } = req.params;
-  const { estado_sucursal } = req.body;
-  try {
-    const affectedRows = await sucursalModel.updateSucursal(id_sucursal, estado_sucursal);
-    if (affectedRows === 0) {
-      return res.status(404).json({ error: 'Sucursal no encontrada' });
+class SucursalController {
+    // Obtener la sucursal
+    static async obtener(req, res) {
+        try {
+            const sucursal = await Sucursal.obtener();
+            res.json(sucursal);
+        } catch (error) {
+            console.error('Error al obtener la sucursal:', error);
+            res.status(500).json({ message: 'Error al obtener la sucursal' });
+        }
     }
-    res.json({ message: 'Sucursal actualizada' });
-  } catch (error) {
-    res.status(500).json({ error: 'Error al actualizar sucursal' });
-  }
-};
 
-// Eliminar (desactivar) una sucursal
-const deleteSucursal = async (req, res) => {
-  const { id_sucursal } = req.params;
-  try {
-    const affectedRows = await sucursalModel.deleteSucursal(id_sucursal);
-    if (affectedRows === 0) {
-      return res.status(404).json({ error: 'Sucursal no encontrada' });
+    static async editar(req, res) {
+      const { id_sucursal } = req.params; // ID de la sucursal
+      const data = req.body; // Datos enviados en el cuerpo de la solicitud
+
+      // Validar entrada
+      if (!data.nombre_sucursal || !data.cuit || !data.domicilio || !data.iva || !data.id_localidad) {
+          return res.status(400).json({ message: 'Faltan datos requeridos' });
+      }
+
+      try {
+          await Sucursal.editar(id_sucursal, data);
+          res.json({ message: 'Sucursal actualizada exitosamente' });
+      } catch (error) {
+          console.error('Error al editar la sucursal:', error);
+          res.status(500).json({ message: 'Error al editar la sucursal' });
+      }
+  }
+
+
+    // Obtener todas las provincias
+    static async obtenerProvincias(req, res) {
+        try {
+            const provincias = await Provincia.obtenerTodas();
+            res.json(provincias);
+        } catch (error) {
+            console.error('Error al obtener provincias:', error);
+            res.status(500).json({ message: 'Error al obtener provincias' });
+        }
     }
-    res.json({ message: 'Sucursal desactivada' });
-  } catch (error) {
-    res.status(500).json({ error: 'Error al desactivar sucursal' });
-  }
-};
 
-module.exports = {
-  getSucursales,
-  addSucursal,
-  updateSucursal,
-  deleteSucursal,
-};
+    // Obtener localidades por provincia
+    static async obtenerLocalidadesPorProvincia(req, res) {
+        const { idProvincia } = req.params;
+        
+        try {
+            const localidades = await Localidad.obtenerPorProvincia(idProvincia);
+            res.json(localidades);
+        } catch (error) {
+            console.error('Error al obtener localidades por provincia:', error);
+            res.status(500).json({ message: 'Error al obtener localidades por provincia' });
+        }
+    }
+}
+
+module.exports = SucursalController;

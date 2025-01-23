@@ -41,7 +41,8 @@ const medioPagoRoutes = require('./routes/medioPagoRoutes');
 const sucursalRoutes = require('./routes/sucursalRoutes');
 const insumoRoutes = require('./routes/insumoRoutes'); // Importar rutas de insumos
 const empleadoRoutes = require('./routes/empleadoRoutes'); // Importar rutas de insumos
-
+const provinciaRoutes = require('./routes/provinciaRoutes');
+const localidadRoutes = require('./routes/localidadRoutes');
 // Usar rutas
 app.use('/usuarios', usuarioRoutes);
 app.use('/categorias', categoriaRoutes);
@@ -54,6 +55,8 @@ app.use('/medios_pago', medioPagoRoutes);
 app.use('/sucursales', sucursalRoutes);
 app.use('/insumos', insumoRoutes); // Usar rutas de insumos
 app.use('/empleados', empleadoRoutes); // Usar rutas de insumos
+app.use('/provincias', provinciaRoutes);
+app.use('/localidades', localidadRoutes);
 
 // Iniciar servidor
 app.listen(3000, () => {
