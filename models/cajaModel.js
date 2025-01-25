@@ -1,57 +1,30 @@
-// models/cajaModel.js
-const db = require('../config/db');
+const db = require('../config/db'); // Asegúrate de que la ruta sea correcta
 
-// Función para obtener todas las cajas
-const getCajas = () => {
-  return new Promise((resolve, reject) => {
-    db.query('SELECT * FROM cajas', (err, results) => {
-      if (err) {
-        return reject(err);
-      }
-      resolve(results);
-    });
-  });
+// Obtener todas las cajas
+const getAllCajas = (callback) => {
+    db.query('SELECT * FROM cajas', callback);
 };
 
-// Función para agregar una nueva caja
-const addCaja = (numero_caja, estado_caja) => {
-  return new Promise((resolve, reject) => {
-    db.query('INSERT INTO cajas (numero_caja, estado_caja) VALUES (?, ?)', [numero_caja, estado_caja], (err, results) => {
-      if (err) {
-        return reject(err);
-      }
-      resolve(results.insertId);
-    });
-  });
+// Crear una nueva caja
+const createCaja = (newCaja, callback) => {
+    db.query('INSERT INTO cajas (numero_caja, estado_caja) VALUES (?, ?)', 
+    [newCaja.numero_caja, newCaja.estado_caja], 
+    callback);
 };
 
-// Función para actualizar el estado de una caja
-const updateCaja = (id_caja, estado_caja) => {
-  return new Promise((resolve, reject) => {
-    db.query('UPDATE cajas SET estado_caja = ? WHERE id_caja = ?', [estado_caja, id_caja], (err, results) => {
-      if (err) {
-        return reject(err);
-      }
-      resolve(results.affectedRows);
-    });
-  });
+// Actualizar una caja
+const updateCaja = (id, updatedCaja, callback) => {
+    db.query('UPDATE cajas SET ? WHERE id_caja = ?', [updatedCaja, id], callback);
 };
 
-// Función para eliminar (desactivar) una caja
-const deleteCaja = (id_caja) => {
-  return new Promise((resolve, reject) => {
-    db.query('UPDATE cajas SET estado_caja = 0 WHERE id_caja = ?', [id_caja], (err, results) => {
-      if (err) {
-        return reject(err);
-      }
-      resolve(results.affectedRows);
-    });
-  });
+// Cambiar el estado de una caja (habilitar/deshabilitar)
+const toggleStatus = (id, callback) => {
+    db.query('UPDATE cajas SET estado_caja = 1 - estado_caja WHERE id_caja = ?', [id], callback);
 };
 
 module.exports = {
-  getCajas,
-  addCaja,
-  updateCaja,
-  deleteCaja,
+    getAllCajas,
+    createCaja,
+    updateCaja,
+    toggleStatus,
 };

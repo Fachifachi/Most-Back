@@ -1,12 +1,11 @@
-// routes/cajaRoutes.js
 const express = require('express');
 const router = express.Router();
 const cajaController = require('../controllers/cajaController');
 
-// Rutas para las cajas
-router.get('/', cajaController.getCajas);           // Obtener todas las cajas
-router.post('/', cajaController.addCaja);           // Agregar una nueva caja
-router.put('/:id_caja', cajaController.updateCaja); // Actualizar una caja
-router.delete('/:id_caja', cajaController.deleteCaja); // Desactivar una caja
+// Rutas
+router.get('/', cajaController.getAllCajas); // Ruta para obtener todas las cajas
+router.post('/', cajaController.createCaja); // Ruta para agregar una nueva caja
+router.put('/:id', cajaController.updateCaja); // Ruta para actualizar una caja
+router.put('/:id/toggle', cajaController.toggleStatus); // Ruta para habilitar/deshabilitar una caja
 
 module.exports = router;

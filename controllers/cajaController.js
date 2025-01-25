@@ -1,59 +1,65 @@
-// controllers/cajaController.js
-const cajaModel = require('../models/cajaModel');
+const Caja = require('../models/cajaModel');
 
 // Obtener todas las cajas
-const getCajas = async (req, res) => {
-  try {
-    const cajas = await cajaModel.getCajas();
-    res.json(cajas);
-  } catch (error) {
-    res.status(500).json({ error: 'Error al obtener cajas' });
-  }
+const getAllCajas = (req, res) => {
+    Caja.getAllCajas((err, results) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        res.json(results);
+    });
 };
 
-// Agregar una nueva caja
-const addCaja = async (req, res) => {
-  const { numero_caja, estado_caja } = req.body;
-  try {
-    const newCajaId = await cajaModel.addCaja(numero_caja, estado_caja);
-    res.status(201).json({ id: newCajaId });
-  } catch (error) {
-    res.status(500).json({ error: 'Error al agregar caja' });
-  }
+// Crear una nueva caja
+const createCaja = (req, res) => {
+    const newCaja = {
+        numero_caja: req.body.numero_caja,
+        estado_caja: req.body.estado_caja || 1 // Se establece como habilitada por defecto
+    };
+    
+    Caja.createCaja(newCaja, (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        res.json({ message: 'Caja creada con éxito', data: results });
+    });
 };
 
-// Actualizar el estado de una caja
-const updateCaja = async (req, res) => {
-  const { id_caja } = req.params;
-  const { estado_caja } = req.body;
-  try {
-    const affectedRows = await cajaModel.updateCaja(id_caja, estado_caja);
-    if (affectedRows === 0) {
-      return res.status(404).json({ error: 'Caja no encontrada' });
-    }
-    res.json({ message: 'Caja actualizada' });
-  } catch (error) {
-    res.status(500).json({ error: 'Error al actualizar caja' });
-  }
+// Actualizar una caja
+const updateCaja = (req, res) => {
+    const { id } = req.params;
+    const updatedCaja = req.body;
+
+    Caja.updateCaja(id, updatedCaja, (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        res.json({ message: 'Caja actualizada con éxito', data: results });
+    });
 };
 
-// Eliminar (desactivar) una caja
-const deleteCaja = async (req, res) => {
-  const { id_caja } = req.params;
-  try {
-    const affectedRows = await cajaModel.deleteCaja(id_caja);
-    if (affectedRows === 0) {
-      return res.status(404).json({ error: 'Caja no encontrada' });
-    }
-    res.json({ message: 'Caja desactivada' });
-  } catch (error) {
-    res.status(500).json({ error: 'Error al desactivar caja' });
-  }
+// Cambiar el estado de una caja
+const toggleStatus = (req, res) => {
+    const { id } = req.params;
+
+    Caja.toggleStatus(id, (err, result) => {
+        if (err) {
+            console.error('Error al cambiar estado de la caja:', err);
+            return res.status(500).send('Error al cambiar el estado de la caja');
+        }
+
+        // Verifica si se actualizó algún registro
+        if (result.affectedRows === 0) {
+            return res.status(404).send('Caja no encontrada');
+        }
+
+        res.status(200).send('Estado de la caja actualizado');
+    });
 };
 
 module.exports = {
-  getCajas,
-  addCaja,
-  updateCaja,
-  deleteCaja,
+    getAllCajas,
+    createCaja,
+    updateCaja,
+    toggleStatus,
 };
