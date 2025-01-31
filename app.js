@@ -43,6 +43,7 @@ const insumoRoutes = require('./routes/insumoRoutes'); // Importar rutas de insu
 const empleadoRoutes = require('./routes/empleadoRoutes'); // Importar rutas de insumos
 const provinciaRoutes = require('./routes/provinciaRoutes');
 const localidadRoutes = require('./routes/localidadRoutes');
+const pedidoRoutes = require('./routes/pedidoRoutes');
 // Usar rutas
 app.use('/usuarios', usuarioRoutes);
 app.use('/categorias', categoriaRoutes);
@@ -57,6 +58,7 @@ app.use('/insumos', insumoRoutes); // Usar rutas de insumos
 app.use('/empleados', empleadoRoutes); // Usar rutas de insumos
 app.use('/provincias', provinciaRoutes);
 app.use('/localidades', localidadRoutes);
+app.use('/pedidos', pedidoRoutes);
 
 // Iniciar servidor
 app.listen(3000, () => {
