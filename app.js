@@ -47,6 +47,7 @@ const pedidoRoutes = require('./routes/pedidoRoutes');
 const cocinaRoutes = require('./routes/cocinaRoutes');
 const armadorRoutes = require('./routes/armadorRoutes');
 const turneraRoutes = require('./routes/turneraRoutes');
+const loginRoutes = require('./routes/authRoutes');
 // Usar rutas
 app.use('/usuarios', usuarioRoutes);
 app.use('/categorias', categoriaRoutes);
@@ -65,6 +66,7 @@ app.use('/pedidos', pedidoRoutes);
 app.use('/cocina', cocinaRoutes);
 app.use('/armador', armadorRoutes);
 app.use('/turnera', turneraRoutes);
+app.use('/login', loginRoutes);
 
 // Iniciar servidor
 app.listen(3000, () => {
