@@ -54,6 +54,22 @@ const getMedioPago = (id_medio_pago, callback) => {
     );
 };
 
+const createTicketInsumos = (ticketInsumos, callback) => {
+    const {
+        id_ticket,
+        id_insumo,
+        cantidad_insumo,
+        precio_insumo,
+        comentarios
+    } = ticketInsumos;
+
+    db.query(
+        `INSERT INTO ticketsinsumos (id_ticket, id_insumo, cantidad_insumo, precio_insumo, comentarios)
+         VALUES (?, ?, ?, ?, ?)`,
+        [id_ticket, id_insumo, cantidad_insumo, precio_insumo, comentarios],
+        callback
+    );
+};
 
 const getTicketById = (id_ticket, callback) => {
     db.query(
@@ -70,4 +86,5 @@ module.exports = {
     getPedidoInsumos,
     getMedioPago,
     getTicketById,
+    createTicketInsumos
 };
