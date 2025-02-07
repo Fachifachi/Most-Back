@@ -7,6 +7,7 @@ exports.createTicket = (req, res) => {
     const newTicket = req.body;
     const id_sucursal = newTicket.id_sucursal;
     const id_pedido = newTicket.id_pedido;
+    const id_turno_caja = newTicket.id_turno_caja; // Obtén el id_turno_caja del cuerpo de la solicitud
     const id_medio_pago = newTicket.id_medio_pago;
     const pedidoInsumos = req.body.pedidoInsumos
 
@@ -58,7 +59,7 @@ exports.createTicket = (req, res) => {
                 ticketModel.createTicket({
                     id_sucursal: id_sucursal,
                     id_pedido: id_pedido,
-                    id_turno_caja: null,
+                    id_turno_caja: id_turno_caja,
                     id_medio_pago: id_medio_pago,
                     total_compra: newTicket.total_compra,
                     fecha: newTicket.fecha,

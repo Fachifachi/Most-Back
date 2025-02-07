@@ -13,7 +13,7 @@ const createTicket = (ticket, callback) => {
 
     db.query(
         `INSERT INTO tickets (id_sucursal, id_pedido, id_turno_caja, id_medio_pago, total_compra, fecha, vuelto)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        VALUES (?, ?, ?, ?, ?, ?, ?)`,
         [id_sucursal, id_pedido, id_turno_caja, id_medio_pago, total_compra, fecha, vuelto],
         callback
     );
@@ -38,9 +38,9 @@ const getPedidoDetails = (id_pedido, callback) => {
 const getPedidoInsumos = (id_pedido, callback) => {
     db.query(
         `SELECT pi.cantidad_insumo, pi.comentarios, i.nombre_insumo, i.precio_insumo
-     FROM pedidosinsumos pi
-     JOIN insumos i ON pi.id_insumo = i.id_insumo
-     WHERE pi.id_pedido = ?`,
+        FROM pedidosinsumos pi
+        JOIN insumos i ON pi.id_insumo = i.id_insumo
+        WHERE pi.id_pedido = ?`,
         [id_pedido],
         callback
     );
@@ -65,7 +65,7 @@ const createTicketInsumos = (ticketInsumos, callback) => {
 
     db.query(
         `INSERT INTO ticketsinsumos (id_ticket, id_insumo, cantidad_insumo, precio_insumo, comentarios)
-         VALUES (?, ?, ?, ?, ?)`,
+        VALUES (?, ?, ?, ?, ?)`,
         [id_ticket, id_insumo, cantidad_insumo, precio_insumo, comentarios],
         callback
     );
