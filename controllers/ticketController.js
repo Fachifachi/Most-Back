@@ -1,13 +1,27 @@
 const ticketModel = require('../models/ticketModel');
 const db = require('../config/db'); // Importa la conexión a la base de datos
 
+exports.getAllTickets = (req, res) => {
+    ticketModel.getAllTickets((err, results) => {
+        if (err) {
+            console.error('Error al obtener todos los tickets:', err);
+            return res.status(500).json({ message: err.message });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ message: 'No se encontraron tickets' });
+        }
+
+        res.json(results);
+    });
+};
 exports.createTicket = (req, res) => {
     console.log('Datos recibidos en /tickets:', req.body);
 
     const newTicket = req.body;
     const id_sucursal = newTicket.id_sucursal;
     const id_pedido = newTicket.id_pedido;
-    const id_turno_caja = newTicket.id_turno_caja; // Obtén el id_turno_caja del cuerpo de la solicitud
+    const id_turno_caja = newTicket.id_turno_caja;
     const id_medio_pago = newTicket.id_medio_pago;
     const pedidoInsumos = req.body.pedidoInsumos
 
@@ -59,7 +73,7 @@ exports.createTicket = (req, res) => {
                 ticketModel.createTicket({
                     id_sucursal: id_sucursal,
                     id_pedido: id_pedido,
-                    id_turno_caja: id_turno_caja,
+                    id_turno_caja:id_turno_caja,
                     id_medio_pago: id_medio_pago,
                     total_compra: newTicket.total_compra,
                     fecha: newTicket.fecha,
@@ -193,4 +207,5 @@ exports.getTicketById = (req, res) => {
             });
         });
     });
+
 };

@@ -78,6 +78,12 @@ const getTicketById = (id_ticket, callback) => {
         callback
     );
 };
+const getAllTickets = (callback) => {
+    db.query(
+        `SELECT * FROM tickets`,
+        callback
+    );
+};
 
 module.exports = {
     createTicket,
@@ -86,5 +92,6 @@ module.exports = {
     getPedidoInsumos,
     getMedioPago,
     getTicketById,
-    createTicketInsumos
+    createTicketInsumos,
+    getAllTickets
 };
