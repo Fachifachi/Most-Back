@@ -36,7 +36,7 @@ const cajaRoutes = require('./routes/cajaRoutes');
 const tamanioRoutes = require('./routes/tamanioRoutes');
 const paqueteRoutes = require('./routes/paqueteRoutes');
 const subcategoriaRoutes = require('./routes/subcategoriaRoutes');
-const porcentajeIvaRoutes = require('./routes/porcentajeIvaRoutes');
+const porcentajeImpuestosRoutes = require('./routes/porcentajeImpuestosRoutes');
 const medioPagoRoutes = require('./routes/medioPagoRoutes');
 const sucursalRoutes = require('./routes/sucursalRoutes');
 const insumoRoutes = require('./routes/insumoRoutes'); // Importar rutas de insumos
@@ -56,7 +56,7 @@ app.use('/cajas', cajaRoutes);
 app.use('/tamanios', tamanioRoutes);
 app.use('/paquetes', paqueteRoutes);
 app.use('/subcategorias', subcategoriaRoutes);
-app.use('/porcentajesiva', porcentajeIvaRoutes);
+app.use('/porcentajes', porcentajeImpuestosRoutes);
 app.use('/medios_pago', medioPagoRoutes);
 app.use('/sucursales', sucursalRoutes);
 app.use('/insumos', insumoRoutes); // Usar rutas de insumos

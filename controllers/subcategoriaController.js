@@ -22,9 +22,9 @@ class SubcategoriaController {
     // Agregar subcategoría
     static async agregar(req, res) {
         console.log('Solicitud recibida para agregar subcategoría:', req.body);
-        const { nombre_sub_categoria, descripcion_sub_categoria, id_categoria, id_porcentaje_iva, estado_sub_categoria } = req.body;
+        const { nombre_sub_categoria, descripcion_sub_categoria, id_categoria, id_porcentaje, estado_sub_categoria } = req.body;
         try {
-            await Subcategoria.agregar(nombre_sub_categoria, descripcion_sub_categoria, id_categoria, id_porcentaje_iva, estado_sub_categoria);
+            await Subcategoria.agregar(nombre_sub_categoria, descripcion_sub_categoria, id_categoria, id_porcentaje, estado_sub_categoria);
             res.json({ message: 'Subcategoría agregada exitosamente' });
         } catch (error) {
             console.error('Error al agregar subcategoría:', error);
@@ -35,15 +35,15 @@ class SubcategoriaController {
     // Editar subcategoría
     static async editar(req, res) {
         const { id } = req.params;
-        const { nombre_sub_categoria, descripcion_sub_categoria, id_categoria, id_porcentaje_iva, estado_sub_categoria } = req.body;
+        const { nombre_sub_categoria, descripcion_sub_categoria, id_categoria, id_porcentaje, estado_sub_categoria } = req.body;
     
         // Validar entrada
-        if (!nombre_sub_categoria || !id_categoria || !id_porcentaje_iva) {
+        if (!nombre_sub_categoria || !id_categoria || !id_porcentaje) {
             return res.status(400).json({ message: 'Faltan datos requeridos' });
         }
     
         try {
-            await Subcategoria.editar(id, nombre_sub_categoria, descripcion_sub_categoria, id_categoria, id_porcentaje_iva, estado_sub_categoria);
+            await Subcategoria.editar(id, nombre_sub_categoria, descripcion_sub_categoria, id_categoria, id_porcentaje, estado_sub_categoria);
             res.json({ message: 'Subcategoría actualizada exitosamente' });
         } catch (error) {
             console.error('Error al editar subcategoría:', error);

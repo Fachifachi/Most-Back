@@ -13,13 +13,16 @@ const listarInsumos = async () => {
             sc.id_sub_categoria,
             sc.nombre_sub_categoria,
             t.id_tamanio,
-            t.nombre_tamanio
+            t.nombre_tamanio,
+            p.porcentaje AS porcentaje_impuesto -- Añadimos el porcentaje
         FROM 
             insumos i
         JOIN 
             subcategorias sc ON i.id_sub_categoria = sc.id_sub_categoria
         JOIN 
-            tamanios t ON i.id_tamanio = t.id_tamanio;
+            tamanios t ON i.id_tamanio = t.id_tamanio
+        JOIN
+            porcentajesimpuestos p ON sc.id_porcentaje = p.id_porcentaje; -- Unimos con la tabla de porcentajes
     `;
     try {
         const [rows] = await connection.promise().query(query);
@@ -81,7 +84,7 @@ const cambiarEstadoInsumo = async (id, estado) => {
     }
 };
 
-// Obtener un insumo por su ID
+// Obtener un insumo por su ID con el porcentaje de impuesto
 const obtenerInsumoPorId = async (id) => {
     const query = `
         SELECT 
@@ -94,13 +97,16 @@ const obtenerInsumoPorId = async (id) => {
             sc.id_sub_categoria, 
             sc.nombre_sub_categoria,
             t.id_tamanio,
-            t.nombre_tamanio
+            t.nombre_tamanio,
+            p.porcentaje AS porcentaje_impuesto  -- Añadimos el porcentaje
         FROM 
             insumos i
         JOIN 
             subcategorias sc ON i.id_sub_categoria = sc.id_sub_categoria
         JOIN 
             tamanios t ON i.id_tamanio = t.id_tamanio
+        JOIN
+            porcentajesimpuestos p ON sc.id_porcentaje = p.id_porcentaje
         WHERE 
             i.id_insumo = ?;
     `;
@@ -111,7 +117,6 @@ const obtenerInsumoPorId = async (id) => {
         throw new Error('Error al obtener insumo por ID: ' + error.message);
     }
 };
-
 // Obtener todas las subcategorías
 const listarSubcategorias = async () => {
     const query = `SELECT id_sub_categoria, nombre_sub_categoria FROM subcategorias`;
