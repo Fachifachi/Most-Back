@@ -1,4 +1,3 @@
-// controllers/armadorController.js
 const armadorModel = require('../models/armadorModel');
 
 // Obtener pedidos en proceso
@@ -40,5 +39,16 @@ exports.marcarPedidoEntregado = (req, res) => {
             return res.status(500).json({ message: err.message });
         }
         res.json({ message: 'Pedido marcado como entregado' });
+    });
+};
+
+// Obtener los insumos de un pedido específico
+exports.getInsumosPorPedido = (req, res) => {
+    const { id_pedido } = req.params;
+    armadorModel.getInsumosPorPedido(id_pedido, (err, results) => {
+        if (err) {
+            return res.status(500).json({ message: err.message });
+        }
+        res.json(results);
     });
 };

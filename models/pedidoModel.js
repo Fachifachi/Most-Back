@@ -1,14 +1,24 @@
 const db = require('../config/db');
 
+// Función para generar un código alfanumérico aleatorio
+function generarCodigoPedido() {
+    const numeros = Math.floor(100 + Math.random() * 900); // Genera un número de 3 dígitos
+    const letras = String.fromCharCode(65 + Math.floor(Math.random() * 26)) + String.fromCharCode(65 + Math.floor(Math.random() * 26)); // Genera dos letras mayúsculas aleatorias
+    return `${numeros}${letras}`;
+}
+
 // Crear un nuevo pedido
 const createPedido = (pedido, callback) => {
     const { nombre_cliente, lugar_consumo } = pedido;
+    const codigo_pedido = generarCodigoPedido(); // Generar el código aquí
+
     db.query(
-        'INSERT INTO pedidos (nombre_cliente, lugar_consumo, estado_pedido) VALUES (?, ?, 0)',
-        [nombre_cliente, lugar_consumo],
+        'INSERT INTO pedidos (nombre_cliente, lugar_consumo, estado_pedido, codigo_pedido) VALUES (?, ?, 0, ?)', // Incluir codigo_pedido en la consulta
+        [nombre_cliente, lugar_consumo, codigo_pedido], // Pasar codigo_pedido como parámetro
         callback
     );
 };
+
 // Agregar insumos a un pedido
 const addInsumosToPedido = (id_pedido, insumos, callback) => {
   const queries = [];

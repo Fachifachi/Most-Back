@@ -7,7 +7,7 @@ const listarInsumos = async () => {
             i.id_insumo,
             i.nombre_insumo,
             i.descripcion_insumo,
-            i.stock_insumo,
+
             i.precio_insumo,
             i.estado_insumo,
             sc.id_sub_categoria,
@@ -33,13 +33,13 @@ const listarInsumos = async () => {
 };
 
 // Agregar un nuevo insumo
-const agregarInsumo = async (idSubCategoria, idTamanio, nombre, descripcion, stock, precio, estado = 1) => {
+const agregarInsumo = async (idSubCategoria, idTamanio, nombre, descripcion, precio, estado = 1) => {
     const query = `
-        INSERT INTO insumos (id_sub_categoria, id_tamanio, nombre_insumo, descripcion_insumo, stock_insumo, precio_insumo, estado_insumo)
-        VALUES (?, ?, ?, ?, ?, ?, ?);
+        INSERT INTO insumos (id_sub_categoria, id_tamanio, nombre_insumo, descripcion_insumo, precio_insumo, estado_insumo)
+        VALUES (?, ?, ?, ?, ?, ?);
     `;
     try {
-        const [result] = await connection.promise().query(query, [idSubCategoria, idTamanio, nombre, descripcion, stock, precio, estado]);
+        const [result] = await connection.promise().query(query, [idSubCategoria, idTamanio, nombre, descripcion, precio, estado]);
         return result.insertId;
     } catch (error) {
         throw new Error('Error al agregar insumo: ' + error.message);
@@ -47,7 +47,7 @@ const agregarInsumo = async (idSubCategoria, idTamanio, nombre, descripcion, sto
 };
 
 // Editar un insumo existente
-const editarInsumo = async (id, idSubCategoria, idTamanio, nombre, descripcion, stock, precio, estado) => {
+const editarInsumo = async (id, idSubCategoria, idTamanio, nombre, descripcion,  precio, estado) => {
     const query = `
         UPDATE insumos 
         SET 
@@ -55,14 +55,14 @@ const editarInsumo = async (id, idSubCategoria, idTamanio, nombre, descripcion, 
             id_tamanio = ?, 
             nombre_insumo = ?, 
             descripcion_insumo = ?, 
-            stock_insumo = ?, 
+      
             precio_insumo = ?, 
             estado_insumo = ? 
         WHERE 
             id_insumo = ?;
     `;
     try {
-        const [result] = await connection.promise().query(query, [idSubCategoria, idTamanio, nombre, descripcion, stock, precio, estado, id]);
+        const [result] = await connection.promise().query(query, [idSubCategoria, idTamanio, nombre, descripcion,  precio, estado, id]);
         return result.affectedRows;
     } catch (error) {
         throw new Error('Error al editar insumo: ' + error.message);
@@ -91,7 +91,7 @@ const obtenerInsumoPorId = async (id) => {
             i.id_insumo, 
             i.nombre_insumo, 
             i.descripcion_insumo, 
-            i.stock_insumo, 
+    
             i.precio_insumo, 
             i.estado_insumo, 
             sc.id_sub_categoria, 

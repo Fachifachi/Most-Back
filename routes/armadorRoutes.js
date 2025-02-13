@@ -1,18 +1,16 @@
-// routes/armadorRoutes.js
 const express = require('express');
-const router = express.Router();
 const armadorController = require('../controllers/armadorController');
+const router = express.Router();
 
-// Obtener pedidos en proceso
+// Rutas para los pedidos en proceso
 router.get('/pedidos/en-proceso', armadorController.getPedidosEnProceso);
-
-// Marcar pedido como hecho
 router.put('/pedidos/hecho/:id_pedido', armadorController.marcarPedidoHecho);
 
-// Obtener pedidos hechos
+// Rutas para los pedidos hechos
 router.get('/pedidos/hechos', armadorController.getPedidosHechos);
-
-// Marcar pedido como entregado
 router.put('/pedidos/entregado/:id_pedido', armadorController.marcarPedidoEntregado);
+
+// Ruta para obtener los insumos de un pedido específico
+router.get('/pedidos/:id_pedido/insumos', armadorController.getInsumosPorPedido);
 
 module.exports = router;

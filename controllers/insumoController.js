@@ -37,9 +37,9 @@ static async listarTamanios(req, res) {
     // Agregar insumo
     static async agregar(req, res) {
         console.log('Solicitud recibida para agregar insumo:', req.body);
-        const { id_sub_categoria, id_tamanio, nombre_insumo, descripcion_insumo, stock_insumo, precio_insumo, estado_insumo } = req.body;
+        const { id_sub_categoria, id_tamanio, nombre_insumo, descripcion_insumo, precio_insumo, estado_insumo } = req.body;
         try {
-            await Insumo.agregarInsumo(id_sub_categoria, id_tamanio, nombre_insumo, descripcion_insumo, stock_insumo, precio_insumo, estado_insumo);
+            await Insumo.agregarInsumo(id_sub_categoria, id_tamanio, nombre_insumo, descripcion_insumo, precio_insumo, estado_insumo);
             res.json({ message: 'Insumo agregado exitosamente' });
         } catch (error) {
             console.error('Error al agregar insumo:', error);
@@ -50,7 +50,7 @@ static async listarTamanios(req, res) {
     // Editar insumo
     static async editar(req, res) {
         const { id } = req.params;
-        const { id_sub_categoria, id_tamanio, nombre_insumo, descripcion_insumo, stock_insumo, precio_insumo, estado_insumo } = req.body;
+        const { id_sub_categoria, id_tamanio, nombre_insumo, descripcion_insumo,  precio_insumo, estado_insumo } = req.body;
     
         // Validar entrada
         if (!nombre_insumo || !id_sub_categoria || !id_tamanio) {
@@ -58,7 +58,7 @@ static async listarTamanios(req, res) {
         }
     
         try {
-            await Insumo.editarInsumo(id, id_sub_categoria, id_tamanio, nombre_insumo, descripcion_insumo, stock_insumo, precio_insumo, estado_insumo);
+            await Insumo.editarInsumo(id, id_sub_categoria, id_tamanio, nombre_insumo, descripcion_insumo, precio_insumo, estado_insumo);
             res.json({ message: 'Insumo actualizado exitosamente' });
         } catch (error) {
             console.error('Error al editar insumo:', error);
