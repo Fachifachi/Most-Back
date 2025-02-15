@@ -8,13 +8,15 @@ const createTicket = (ticket, callback) => {
         id_medio_pago,
         total_compra,
         fecha,
-        vuelto
+        vuelto,
+        hora_exacta,
+        id_caja
     } = ticket;
 
     db.query(
-        `INSERT INTO tickets (id_sucursal, id_pedido, id_turno_caja, id_medio_pago, total_compra, fecha, vuelto)
-        VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [id_sucursal, id_pedido, id_turno_caja, id_medio_pago, total_compra, fecha, vuelto],
+        `INSERT INTO tickets (id_sucursal, id_pedido, id_turno_caja, id_medio_pago, total_compra, fecha, vuelto, hora_exacta, id_caja)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [id_sucursal, id_pedido, id_turno_caja, id_medio_pago, total_compra, fecha, vuelto, hora_exacta, id_caja],
         callback
     );
 };
@@ -73,11 +75,17 @@ const createTicketInsumos = (ticketInsumos, callback) => {
 
 const getTicketById = (id_ticket, callback) => {
     db.query(
-        `SELECT * FROM tickets WHERE id_ticket = ?`,
+        `SELECT tickets.*, cajas.numero_caja, pedidos.codigo_pedido
+        FROM tickets
+        JOIN turnoscaja ON tickets.id_turno_caja = turnoscaja.id_turno_caja
+        JOIN cajas ON turnoscaja.id_caja = cajas.id_caja
+        JOIN pedidos ON tickets.id_pedido = pedidos.id_pedido
+        WHERE tickets.id_ticket = ?`,
         [id_ticket],
         callback
     );
 };
+
 const getAllTickets = (callback) => {
     db.query(
         `SELECT * FROM tickets`,

@@ -23,8 +23,13 @@ exports.createTicket = (req, res) => {
     const id_pedido = newTicket.id_pedido;
     const id_turno_caja = newTicket.id_turno_caja;
     const id_medio_pago = newTicket.id_medio_pago;
-    const pedidoInsumos = req.body.pedidoInsumos
-
+    const total_compra = newTicket.total_compra;
+    const fecha = newTicket.fecha;
+    const vuelto = newTicket.vuelto;
+    const hora_exacta = new Date().toLocaleTimeString(); // Obtener la hora exacta
+    const id_caja = newTicket.id_caja;
+    const pedidoInsumos = newTicket.pedidoInsumos; // Extraer pedidoInsumos de newTicket
+    
     // Obtener detalles de la sucursal
     console.log('Obteniendo detalles de la sucursal...');
     ticketModel.getSucursalDetails(id_sucursal, (err, sucursalResults) => {
@@ -73,11 +78,14 @@ exports.createTicket = (req, res) => {
                 ticketModel.createTicket({
                     id_sucursal: id_sucursal,
                     id_pedido: id_pedido,
-                    id_turno_caja:id_turno_caja,
+                    id_turno_caja: id_turno_caja,
                     id_medio_pago: id_medio_pago,
-                    total_compra: newTicket.total_compra,
-                    fecha: newTicket.fecha,
-                    vuelto: newTicket.vuelto
+                    total_compra: total_compra,
+                    fecha: fecha,
+                    vuelto: vuelto,
+                    hora_exacta: hora_exacta,
+                    id_caja: id_caja,
+                    codigo_pedido: pedido.codigo_pedido
                 }, (err, createTicketResults) => {
                     if (err) {
                         console.error('Error al crear el ticket:', err);
@@ -112,9 +120,12 @@ exports.createTicket = (req, res) => {
                         sucursal: sucursal,
                         pedido: pedido,
                         medioPago: medioPago.nombre_medio_pago,
-                        totalCompra: newTicket.total_compra,
-                        fecha: newTicket.fecha,
-                        vuelto: newTicket.vuelto
+                        totalCompra: total_compra,
+                        fecha: fecha,
+                        vuelto: vuelto,
+                        hora_exacta: hora_exacta,
+                        id_caja: id_caja,
+                        codigo_pedido: pedido.codigo_pedido
                     };
 
                     console.log('Ticket data:', ticketData);
@@ -129,10 +140,9 @@ exports.createTicket = (req, res) => {
     });
 };
 
+
 exports.getTicketById = (req, res) => {
     const id_ticket = req.params.id_ticket;
-
-    // Obtener los detalles del ticket
     ticketModel.getTicketById(id_ticket, (err, ticketResults) => {
         if (err) {
             return res.status(500).json({ message: err.message });
@@ -170,7 +180,7 @@ exports.getTicketById = (req, res) => {
                 }
 
                 const pedido = pedidoResults[0];
-                  ticketModel.getMedioPago(id_medio_pago, (err, medioPagoResults) => {
+                ticketModel.getMedioPago(id_medio_pago, (err, medioPagoResults) => {
                     if (err) {
                         return res.status(500).json({ message: err.message });
                     }
@@ -207,5 +217,4 @@ exports.getTicketById = (req, res) => {
             });
         });
     });
-
 };
