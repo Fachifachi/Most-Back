@@ -13,12 +13,25 @@ const createTicket = (ticket, callback) => {
         id_caja
     } = ticket;
 
-    db.query(
-        `INSERT INTO tickets (id_sucursal, id_pedido, id_turno_caja, id_medio_pago, total_compra, fecha, vuelto, hora_exacta, id_caja)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [id_sucursal, id_pedido, id_turno_caja, id_medio_pago, total_compra, fecha, vuelto, hora_exacta, id_caja],
-        callback
-    );
+    // Obtener el nombre del medio de pago
+    getMedioPago(id_medio_pago, (err, results) => {
+        if (err) {
+            console.error('Error al obtener el nombre del medio de pago:', err);
+            callback(err, null); // Pasar el error al callback
+            return;
+        }
+
+        const nombre_medio_pago = results[0] ? results[0].nombre_medio_pago : 'Desconocido';
+
+        console.log("Medio de pago:", id_medio_pago, nombre_medio_pago); // Imprime el valor y el nombre
+
+        db.query(
+            `INSERT INTO tickets (id_sucursal, id_pedido, id_turno_caja, id_medio_pago, total_compra, fecha, vuelto, hora_exacta, id_caja)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [id_sucursal, id_pedido, id_turno_caja, id_medio_pago, total_compra, fecha, vuelto, hora_exacta, id_caja],
+            callback
+        );
+    });
 };
 
 const getSucursalDetails = (id_sucursal, callback) => {
@@ -75,16 +88,51 @@ const createTicketInsumos = (ticketInsumos, callback) => {
 
 const getTicketById = (id_ticket, callback) => {
     db.query(
-        `SELECT tickets.*, cajas.numero_caja, pedidos.codigo_pedido
-        FROM tickets
-        JOIN turnoscaja ON tickets.id_turno_caja = turnoscaja.id_turno_caja
-        JOIN cajas ON turnoscaja.id_caja = cajas.id_caja
-        JOIN pedidos ON tickets.id_pedido = pedidos.id_pedido
-        WHERE tickets.id_ticket = ?`,
+        `SELECT
+            t.*,  -- Select all columns from the tickets table
+            s.nombre_sucursal,
+            mp.nombre_medio_pago
+        FROM
+            tickets t
+        JOIN sucursales s ON t.id_sucursal = s.id_sucursal
+        JOIN mediospago mp ON t.id_medio_pago = mp.id_medio_pago
+        WHERE t.id_ticket = ?`,
         [id_ticket],
-        callback
+        (err, ticketResults) => {
+            if (err) {
+                return callback(err, null);
+            }
+
+            if (ticketResults.length === 0) {
+                return callback(null, null); // Ticket not found
+            }
+
+            const ticket = ticketResults[0];
+
+            // Fetch insumos separately, including comments from pedidosinsumos
+            db.query(
+                `SELECT i.id_insumo, i.nombre_insumo, ti.cantidad_insumo, i.precio_insumo, pi.comentarios
+                 FROM ticketsinsumos ti
+                 JOIN insumos i ON ti.id_insumo = i.id_insumo
+                 LEFT JOIN pedidosinsumos pi ON i.id_insumo = pi.id_insumo
+                 WHERE ti.id_ticket = ?`,
+                [id_ticket],
+                (err, insumosResults) => {
+                    if (err) {
+                        return callback(err, null);
+                    }
+
+                    const ticketData = {
+                        ...ticket,
+                        insumos: insumosResults
+                    };
+                    callback(null, [ticketData]); // Wrap in array to match your controller
+                }
+            );
+        }
     );
 };
+
 
 const getAllTickets = (callback) => {
     db.query(
