@@ -27,67 +27,93 @@ exports.createTicket = (req, res) => {
     const total_compra = newTicket.total_compra;
     const fecha = newTicket.fecha;
     const vuelto = newTicket.vuelto;
-    const hora_exacta = new Date().toLocaleTimeString();
+    const hora_exacta = new Date().toLocaleTimeString(); // Obtener la hora exacta
     const id_caja = newTicket.id_caja;
-    const pedidoInsumos = newTicket.pedidoInsumos;
+    const pedidoInsumos = newTicket.pedidoInsumos; // Extraer pedidoInsumos de newTicket
 
-    // Usamos Promise.all para esperar a que todas las operaciones asíncronas se completen
-    Promise.all([
-        ticketModel.getSucursalDetails(id_sucursal),
-        ticketModel.getPedidoDetails(id_pedido),
-        ticketModel.getMedioPago(id_medio_pago)
-    ])
-        .then(([sucursalResults, pedidoResults, medioPagoResults]) => {
-            if (!sucursalResults || sucursalResults.length === 0) {
-                return res.status(404).json({ message: 'Sucursal no encontrada' });
+    // Obtener detalles de la sucursal
+    console.log('Obteniendo detalles de la sucursal...');
+    ticketModel.getSucursalDetails(id_sucursal, (err, sucursalResults) => {
+        if (err) {
+            console.error('Error al obtener detalles de la sucursal:', err);
+            return res.status(500).json({ message: err.message });
+        }
+
+        if (sucursalResults.length === 0) {
+            console.log('Sucursal no encontrada');
+            return res.status(404).json({ message: 'Sucursal no encontrada' });
+        }
+
+        const sucursal = sucursalResults[0];
+        console.log('Detalles de la sucursal:', sucursal);
+
+        // Obtener detalles del pedido
+        console.log('Obteniendo detalles del pedido...');
+        ticketModel.getPedidoDetails(id_pedido, (err, pedidoResults) => {
+            if (err) {
+                console.error('Error al obtener detalles del pedido:', err);
+                return res.status(500).json({ message: err.message });
             }
-            const sucursal = sucursalResults[0];
 
-            if (!pedidoResults || pedidoResults.length === 0) {
+            if (pedidoResults.length === 0) {
+                console.log('Pedido no encontrado');
                 return res.status(404).json({ message: 'Pedido no encontrado' });
             }
+
             const pedido = pedidoResults[0];
+            console.log('Detalles del pedido:', pedido);
 
-            if (!medioPagoResults || medioPagoResults.length === 0) {
-                return res.status(404).json({ message: 'Medio de pago no encontrado' });
-            }
-            const medioPago = medioPagoResults[0];
+            // Obtener el nombre del medio de pago
+            console.log('Obteniendo el nombre del medio de pago...');
+            ticketModel.getMedioPago(id_medio_pago, (err, medioPagoResults) => {
+                if (err) {
+                    console.error('Error al obtener el nombre del medio de pago:', err);
+                    return res.status(500).json({ message: err.message });
+                }
 
-            // Crear el ticket
-            ticketModel.createTicket({
-                id_sucursal: id_sucursal,
-                id_pedido: id_pedido,
-                id_turno_caja: id_turno_caja,
-                id_medio_pago: id_medio_pago,
-                total_compra: total_compra,
-                fecha: fecha,
-                vuelto: vuelto,
-                hora_exacta: hora_exacta,
-                id_caja: id_caja,
-                codigo_pedido: pedido.codigo_pedido
-            })
-                .then(createTicketResults => {
+                const medioPago = medioPagoResults[0];
+                console.log('Medio de pago:', medioPago);
+
+                // Crear el ticket
+                console.log('Creando el ticket...');
+                ticketModel.createTicket({
+                    id_sucursal: id_sucursal,
+                    id_pedido: id_pedido,
+                    id_turno_caja: id_turno_caja,
+                    id_medio_pago: id_medio_pago,
+                    total_compra: total_compra,
+                    fecha: fecha,
+                    vuelto: vuelto,
+                    hora_exacta: hora_exacta,
+                    id_caja: id_caja,
+                    codigo_pedido: pedido.codigo_pedido
+                }, (err, createTicketResults) => {
+                    if (err) {
+                        console.error('Error al crear el ticket:', err);
+                        return res.status(500).json({ message: err.message });
+                    }
+
                     const id_ticket = createTicketResults.insertId;
+                    console.log('Ticket creado con ID:', id_ticket);
 
                     // Insertar los insumos en ticketsinsumos
-                    if (pedidoInsumos) {
-                        const insertPromises = pedidoInsumos.map(insumo => {
-                            return ticketModel.createTicketInsumos({
+                    if (pedidoInsumos) { // Verifica si pedidoInsumos está definido
+                        pedidoInsumos.forEach(insumo => {
+                            ticketModel.createTicketInsumos({
                                 id_ticket: id_ticket,
                                 id_insumo: insumo.id_insumo,
                                 cantidad_insumo: insumo.cantidad,
-                                precio_insumo: insumo.precio_insumo,
-                                comentarios: insumo.comentarios || ''
+                                precio_insumo: insumo.precio_insumo // <-- ¡Aquí eliminamos comentarios!
+                            }, (err) => {
+                                if (err) {
+                                    console.error('Error al crear ticketInsumo:', err);
+                                    return res.status(500).json({ message: err.message });
+                                }
+                                console.log(`TicketInsumo creado para insumo ${insumo.id_insumo}`);
                             });
                         });
-
-                        return Promise.all(insertPromises)
-                            .then(() => id_ticket); // Retornar el ID del ticket para el siguiente paso
-                    } else {
-                        return id_ticket; // Si no hay insumos, retornar directamente el ID del ticket
                     }
-                })
-                .then(id_ticket => {
+
                     // Construir el objeto del ticket
                     const ticketData = {
                         id_ticket: id_ticket,
@@ -102,21 +128,18 @@ exports.createTicket = (req, res) => {
                         codigo_pedido: pedido.codigo_pedido
                     };
 
+                    console.log('Ticket data:', ticketData);
+
                     res.status(201).json({
                         message: 'Ticket creado exitosamente',
                         ticket: ticketData,
                     });
-                })
-                .catch(err => {
-                    console.error('Error al crear el ticket:', err);
-                    return res.status(500).json({ message: err.message });
                 });
-        })
-        .catch(err => {
-            console.error('Error al obtener detalles:', err);
-            return res.status(500).json({ message: err.message });
+            });
         });
+    });
 };
+
 exports.getTicketById = (req, res) => {
     const id_ticket = req.params.id_ticket;
 
@@ -132,7 +155,7 @@ exports.getTicketById = (req, res) => {
         const ticket = ticketResults[0];
         const id_sucursal = ticket.id_sucursal;
         const id_pedido = ticket.id_pedido; // Get the id_pedido from the ticket
-        const id_medio_pago = ticket.id_medio_pago
+        const id_medio_pago = ticket.id_medio_pago;
 
         // Obtener detalles de la sucursal
         ticketModel.getSucursalDetails(id_sucursal, (err, sucursalResults) => {
@@ -166,7 +189,7 @@ exports.getTicketById = (req, res) => {
 
                     // Obtener los insumos del ticket desde la tabla pedidosinsumos utilizando el id_pedido
                     db.query(
-                        `SELECT pi.cantidad_insumo, pi.comentarios, i.nombre_insumo, i.precio_insumo
+                        `SELECT pi.id_linea, pi.cantidad_insumo, pi.comentarios, i.nombre_insumo, i.precio_insumo
                         FROM pedidosinsumos pi
                         JOIN insumos i ON pi.id_insumo = i.id_insumo
                         WHERE pi.id_pedido = ?`, // Use pi.id_pedido instead of ti.id_ticket
